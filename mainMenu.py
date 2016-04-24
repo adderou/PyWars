@@ -90,9 +90,12 @@ class mainMenu(PygameBaseClass):
         return window
 
     def runBattle(self):
-        fileName = self.files[self.selectionIndex] + '.tpm'
-        path = os.path.join('maps', fileName)
-        battleMode = Battle.fromFile(path)
+        if self.selectionIndex < len(self.files):
+            fileName = self.files[self.selectionIndex] + '.tpm'
+            path = os.path.join('maps', fileName)
+            battleMode = Battle.fromFile(path)
+        else:
+            battleMode = Battle.randomMap();
         if battleMode.runAsChild() == 1: self.quit()
         else: self.initGame()
 
@@ -144,17 +147,17 @@ class mainMenu(PygameBaseClass):
     def battleSetup(self, keyName):
         if keyName == 'down':
             self.selectionIndex += 1
-            self.selectionIndex %= len(self.files)
+            self.selectionIndex %= len(self.files)+1 #random is here!
             self.redrawAll()
         elif keyName == 'up':
             self.selectionIndex -= 1
-            self.selectionIndex %= len(self.files)
+            self.selectionIndex %= len(self.files) + 1 #randooom
             self.redrawAll()
         elif keyName == 'escape':
             self.initGame()
         elif keyName == 'return':
             self.runBattle()
-            
+
     def editSetup(self, keyName):
         if self.editorOpenFiles:
             self.editorOpenFile(keyName)
@@ -238,6 +241,9 @@ class mainMenu(PygameBaseClass):
         font = pygame.font.SysFont('Arial', fontSize, True)
         text = font.render('Maps:', 1, (0, 0, 0))
         self.display.blit(text, (left + 32, top + 24))
+        i = 0;
+        fileLeft = 0
+        fileTop = 0
         for i in xrange(len(self.files)):
             fileLeft = left + 32
             fileTop = top + 64 + (fontSize + padding) * i
@@ -248,6 +254,12 @@ class mainMenu(PygameBaseClass):
                 color = (0, 0, 0)
             text = font.render(fileName, 1, color)
             self.display.blit(text, (fileLeft, fileTop))
+        if i+1 == self.selectionIndex:
+            color = (96, 96, 96)
+        else:
+            color = (0, 0, 0)
+        random = font.render("Random", 1, color)
+        self.display.blit(random, (fileLeft, fileTop + fontSize + padding))
 
     def drawEditSetup(self):
         left, top = 160, 96

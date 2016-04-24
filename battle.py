@@ -81,6 +81,133 @@ class Battle(PygameBaseClass):
         units = Battle.loadUnits(unitString)
         return Battle(map, numPlayers, initialFunds, units)
 
+
+    @staticmethod
+    def randomMap():
+        baseMap = Battle.generateRandomBaseMap()
+        numPlayers = 2
+        initialFunds = 0
+        unitString, used = Battle.generateUnits(baseMap)
+        finalMap = Battle.populateMap(baseMap,used)
+        map = Map(Battle.generateMapString(finalMap))
+        units = Battle.loadUnits(unitString)
+        return Battle(map, numPlayers, initialFunds, units)
+
+    @staticmethod
+    def generateRandomBaseMap():
+        map = []
+        for i in range(10):
+            mapLine = []
+            for j in range(16):
+                mapLine.append("1")
+            map.append(mapLine)
+        # Map Headquarters
+        map[2][2] = "00"
+        map[7][13] = "10"
+        return map
+
+    @staticmethod
+    def generateMapString(map):
+        mapString = ""
+        for i in range(10):
+            for j in range(16):
+                mapString += str(map[i][j])+(3-len(map[i][j]))*" "
+            mapString+="\n"
+        print mapString
+        return mapString
+
+    @staticmethod
+    def populateMap(map,used):
+        #Rivers
+        x = random.randint(0, 9)
+        y = random.randint(0, 15)
+        d = 1
+        while x not in [0,9] and y not in [0,15]:
+            possible = [(max(0,x-d),y),(min(9,x+d),y),(x,max(0,y-d)),(x,min(15,y+d))]
+            x,y = possible[random.randint(0,3)]
+            counter = 0
+            while ((x,y) not in used) and (x,y) in [(2,2), (7,13)] and counter<5:
+                x, y = possible[random.randint(0, 3)]
+                counter +=1
+            map[x][y] = "5"
+            used.append((x,y))
+
+        #mountains
+        x = random.randint(0, 9)
+        y = random.randint(0, 15)
+        d = 1
+        while x not in [0,9] and y not in [0,15]:
+            possible = [(max(0,x-d),y),(min(9,x+d),y),(x,max(0,y-d)),(x,min(15,y+d))]
+            x,y = possible[random.randint(0,3)]
+            counter = 0
+            while ((x,y) not in used) and (x,y) in [(2,2), (7,13)] and counter<5:
+                x, y = possible[random.randint(0, 3)]
+                counter +=1
+            map[x][y] = "4"
+            used.append((x,y))
+
+        #Forests
+
+        x = random.randint(0, 9)
+        y = random.randint(0, 15)
+        d = 1
+        while x not in [0, 9] and y not in [0, 15]:
+            possible = [(max(0, x - d), y), (min(9, x + d), y), (x, max(0, y - d)), (x, min(15, y + d))]
+            x, y = possible[random.randint(0, 3)]
+            counter = 0
+            while ((x, y) not in used) and (x, y) in [(2, 2), (7, 13)] and counter < 5:
+                x, y = possible[random.randint(0, 3)]
+                counter += 1
+            map[x][y] = "3"
+            used.append((x, y))
+
+        #roads
+        x = random.randint(0, 9)
+        y = random.randint(0, 15)
+        d = 1
+        while x not in [0, 9] and y not in [0, 15]:
+            possible = [(max(0, x - d), y), (min(9, x + d), y), (x, max(0, y - d)), (x, min(15, y + d))]
+            x, y = possible[random.randint(0, 3)]
+            counter = 0
+            while ((x, y) not in used) and (x, y) in [(2, 2), (7, 13)] and counter < 5:
+                x, y = possible[random.randint(0, 3)]
+                counter += 1
+            map[x][y] = "2"
+            used.append((x, y))
+
+        return map
+    @staticmethod
+    def generateUnits(map):
+        unitString = ""
+        team1Size = random.randint(1,3)
+        team2Size = random.randint(1,3)
+        used = []
+        x = random.randint(0, 9)
+        y = random.randint(0, 15)
+        d = 2
+        while team1Size>0:
+            unitType = random.randint(1,6)
+            x = random.randint(max(0, x - d), min(9, x + d))
+            y = random.randint(max(0, y - d), min(15, y + d))
+            while ((x,y) in used):
+                x = random.randint(max(0,x-d),min(9,x+d))
+                y = random.randint(max(0,y-d), min(15,y+d))
+            used.append((x,y))
+            unitString += str(0)+" "+str(unitType)+" "+str(x)+","+str(y)+"\n"
+            team1Size-=1
+        while team2Size > 0:
+            unitType = random.randint(1, 6)
+            x = random.randint(max(0, x - d), min(9, x + d))
+            y = random.randint(max(0, y - d), min(15, y + d))
+            while ((x,y) in used):
+                x = random.randint(max(0, x - d), min(9, x + d))
+                y = random.randint(max(0, y - d), min(15, y + d))
+            used.append((x,y))
+            unitString += str(1) + " " + str(unitType) + " " + str(x) + "," + str(y) + "\n"
+            team2Size -= 1;
+        print unitString
+        return unitString, used
+
     ##################################################################
     # Game setup
     ##################################################################
