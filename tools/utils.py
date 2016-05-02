@@ -73,10 +73,11 @@ def tupleToGame():
 #nota 1 ya no es necesario first game id
 def getGamefromDb(idGame,cursor):
 
-    query = "SELECT * FROM `state`, `cell_states`   WHERE `state_id` = %s and `current_state_id` = %s" \
-            "ORDER  BY `order_in_game` "
 
-    cursor.execute(query,(str(idGame),str(idGame)))
+    query = "SELECT * FROM `state`, `cell_states`   WHERE `game_id` = %s and `state_id` = `current_state_id` " \
+            "ORDER  BY `order_in_game` "
+    print 'Getting ',idGame
+    cursor.execute(query,(str(idGame),))
     result = cursor.fetchall()
 
     listGame = []
@@ -160,6 +161,8 @@ def saveGameToDb(cursor, listaTrans, comment):
     for i in range(1,len(listaTrans)):
         saveTransitionToDb(cursor,listaTrans[i],gameId,i)
 
+    return gameId
+
 """
 Insert transition into DB and return the STATE_ID given for this transition
 Transition consist of Terrain, Troops and action
@@ -192,7 +195,7 @@ def saveTransitionToDb(cursor,transition,gameId,orderInGame):
 
     #create all the cell given the state_id
     #id	can_move	x	y	terrain_type_id	troop_id
-    # team_id	hp	visibility	is_solid	state_id
+    # team_id	hp	state_id
 
 
 
@@ -205,6 +208,8 @@ def saveTransitionToDb(cursor,transition,gameId,orderInGame):
         listCell.append(idState)
         paramsString += (str(tuple(listCell))+' , ')
     paramsString = paramsString[:-2]
+    print {'Can_move': 0, 'x': 1, 'y': 2, 'Terrain_type': 3, 'Troop': 4, 'Team': 5,
+             'HP': 6}
     print 'Params to add ',paramsString
 
 
@@ -225,7 +230,7 @@ def jointCellTypes(transition):
     defaultlist = [0 for i in range(7)]
 
     # join all cell types
-    for cell in (transition['Troops'][0] + transition['Troops'][0] + transition['Terrain']):
+    for cell in (transition['Troops'][0] + transition['Troops'][1] + transition['Terrain']):
         if not (dictCell.has_key((cell['x'], cell['y']))):
             dictCell[(cell['x'], cell['y'])] = copy(defaultlist)
         for key in cell:
@@ -254,8 +259,8 @@ if __name__ == '__main__':
     db = MySQLdb.connect("200.9.100.170", "bayes", "yesbayesyes", "bayes")
     # cursor = db.cursor()
     cursor = db.cursor (MySQLdb.cursors.DictCursor)
-    # saveGameToDb(cursor,testGame,'Este es el primer desde code')
-    getGamefromDb(16,cursor)
+    saveGameToDb(cursor,testGame,'Este es el primer das code')
+    # getGamefromDb(16,cursor)
 
     cursor.close()
     db.commit()
