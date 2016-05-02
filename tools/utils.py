@@ -70,12 +70,52 @@ def gameToInputNN():
 def tupleToGame():
     pass
 
-def getGamefromDb(idGame):
-    #connect
+def getGamefromDb(idGame,cursor):
 
-    #get query
+    query = "SELECT * FROM `state`, `cell_states`   WHERE `state_id` = %s and `current_state_id` = %s" % idGame
 
-    pass
+    cursor.execute(query)
+    result = cursor.fetchall()
+
+    listGame = []
+    currentId = -1
+    currentRow = 0
+
+    # current_state_id
+    # game_id
+    # xi
+    # yi
+    # xf
+    # yf
+    # action
+    # order_in_game
+    # next_terminal
+    # xa
+    # ya
+    # id
+    # can_move
+    # x
+    # y
+    # terrain_type_id
+    # troop_id
+    # team_id
+    # hp
+    # state_id
+
+    #get all rows in state,cell with game id
+    for row in result:
+
+        rowId = 0
+
+        if rowId != currentId:
+            #format action,nextTerminal, append to gameList
+            pass
+
+        #format cell things in currentRow object
+
+        pass
+
+    return listGame
 
 """
 Take the entire game (list of transitions from start to end ) and save it in the DB
