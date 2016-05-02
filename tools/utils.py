@@ -4,28 +4,30 @@ from copy import copy
 
 import MySQLdb
 
+#eliminar game
 
-testGame = {'Game':
-            [
+#Convencciones EL TROOPS[0] ES BLUE Y EL TROOPS[1] ES RED
+
+
+testGame = [
                 {
                     'Terrain':[
                     {'x':1,
                     'y':2,
                     'Terrain_type':0
                      }
-                ],
-                    'Troops':{
-                        'Blue':[
-                            {'x':1,
+                    ],
+                    'Troops':[
+                            [{'x':1,
                              'y':2,
                              'Can_move':0,
                              'Troop':1,
                              'Team':0,
                              'HP':100
-                            }
-                        ],
-                        'Red':[]
-                    },
+                            }],
+                            []
+                            ],
+
                     'Action':{
                         'Xi':1,
                         'Yi':2,
@@ -39,7 +41,6 @@ testGame = {'Game':
                     }
 
             ]
-            }
 
 """
 A query to the db returns a list of cells that form a states
@@ -70,6 +71,7 @@ def gameToInputNN():
 def tupleToGame():
     pass
 
+#nota 1 ya no es necesario first game id
 def getGamefromDb(idGame,cursor):
 
     query = "SELECT * FROM `state`, `cell_states`   WHERE `state_id` = %s and `current_state_id` = %s" % idGame
@@ -123,9 +125,8 @@ Game = [ (transition0) , (transition1) ..... ]
 """
 
 
-def saveGameToDb(cursor, game, comment):
+def saveGameToDb(cursor, listaTrans, comment):
 
-    listaTrans = game['Game']
 
     #insert the first transition returning the transition id
     firstTrans = listaTrans[0]
@@ -212,7 +213,7 @@ def jointCellTypes(transition):
     defaultlist = [0 for i in range(7)]
 
     # join all cell types
-    for cell in (transition['Troops']['Red'] + transition['Troops']['Red'] + transition['Terrain']):
+    for cell in (transition['Troops'][0] + transition['Troops'][0] + transition['Terrain']):
         if not (dictCell.has_key((cell['x'], cell['y']))):
             dictCell[(cell['x'], cell['y'])] = copy(defaultlist)
         for key in cell:
