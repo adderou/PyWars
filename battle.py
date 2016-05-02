@@ -44,6 +44,8 @@ class Battle(PygameBaseClass):
         5: LgTank,
         6: Artillery
     }
+
+
     shopCosts = {
         1: 1000,
         2: 3000,
@@ -113,7 +115,6 @@ class Battle(PygameBaseClass):
             for j in range(16):
                 mapString += str(map[i][j])+(3-len(map[i][j]))*" "
             mapString+="\n"
-        print mapString
         return mapString
 
     @staticmethod
@@ -205,7 +206,6 @@ class Battle(PygameBaseClass):
             used.append((x,y))
             unitString += str(1) + " " + str(unitType) + " " + str(x) + "," + str(y) + "\n"
             team2Size -= 1;
-        print unitString
         return unitString, used
 
     ##################################################################
@@ -1210,6 +1210,43 @@ class Battle(PygameBaseClass):
         else:
             self.drawHUDInstr()
         pygame.display.flip()
+
+
+    def getGameState(self):
+        invShopTypes = {
+            'Infantry': 1,
+            'RocketInf': 2,
+            'APC': 3,
+            'SmTank': 4,
+            'LgTank': 5,
+            'Artillery': 6
+        }
+        GameState = {}
+        GameState['Terrain'] = []
+        map = self.map;
+        units = self.unitSpace;
+        # Terrain
+        for i in range(map):
+            for j in range(map[i]):
+                terrainType = map[i][j] if (int == type(map[i][j])) else  map[i][j][1]
+                GameState['Terrain'].append({'x': j, 'y': i, 'Terrain_type': terrainType})
+        # Troops
+        GameState['Troops'] = []
+        red = []
+        blue = []
+        for i in range(units):
+            for j in range(units[i]):
+                if units[i][j] is not None:
+                    num = 0 if (units[i][j] == 'Blue') else 1
+
+                    GameState['Troops'][num].append(
+                        {'x': j,
+                         'y': i,
+                         'Team': num,
+                         'Troop': invShopTypes[units[i][j].type],
+                         'Can_move': int(units[i][j].hasMoved),
+                         'HP': units[i][j].health
+                         })
 
 # testMapPath = os.path.join('maps', 'gauntlet.tpm')
 # a = Battle.fromFile(testMapPath)

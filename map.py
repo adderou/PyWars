@@ -216,6 +216,7 @@ class Map(pygame.sprite.Sprite):
         self.width = self.cols * Tile.size
         self.height = self.rows * Tile.size
         self.contents = contents
+        print self.contents;
         self.map = self.getMap(contents)
         self.defense = self.getDefense()
         self.image = self.getImage()
@@ -378,3 +379,5 @@ class Map(pygame.sprite.Sprite):
 #
 # if __name__ == '__main__':
 #     MapTest().run()
+
+
