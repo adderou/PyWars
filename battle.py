@@ -79,7 +79,7 @@ class Battle(PygameBaseClass):
         numPlayers = int(saveContents[1])
         initialFunds = int(saveContents[2])
         unitString = saveContents[3]
-        map = Map(mapString)
+        map = mapString
         units = Battle.loadUnits(unitString)
         return Battle(map, numPlayers, initialFunds, units)
 
@@ -91,7 +91,7 @@ class Battle(PygameBaseClass):
         initialFunds = 0
         unitString, used = Battle.generateUnits(baseMap)
         finalMap = Battle.populateMap(baseMap,used)
-        map = Map(Battle.generateMapString(finalMap))
+        map = Battle.generateMapString(finalMap)
         units = Battle.loadUnits(unitString)
         return Battle(map, numPlayers, initialFunds, units)
 
@@ -214,13 +214,14 @@ class Battle(PygameBaseClass):
 
     def __init__(self, map, numPlayers, initialFunds=5000, initialUnits=[]):
         # super(Battle, self).__init__('Battle')
-        self.map = map
-        self.rows, self.cols = map.rows, map.cols
+        self.map = Map(map)
+        self.rows, self.cols = self.map.rows, self.map.cols
         self.unitSpace = self.getUnitSpace()
         self.numPlayers = numPlayers
         self.initialFunds = initialFunds
         self.teams = self.createTeams()
         self.placeInitialUnits(initialUnits)
+        print self.getGameState()
 
     def initGraphics(self):
         self.camWidth = 16
@@ -1223,22 +1224,21 @@ class Battle(PygameBaseClass):
         }
         GameState = {}
         GameState['Terrain'] = []
-        map = self.map;
+        map = self.map.contents;
+        print map
         units = self.unitSpace;
         # Terrain
-        for i in range(map):
-            for j in range(map[i]):
+        for i in range(len(map)):
+            for j in range(len(map[i])):
+                print map[i];
                 terrainType = map[i][j] if (int == type(map[i][j])) else  map[i][j][1]
                 GameState['Terrain'].append({'x': j, 'y': i, 'Terrain_type': terrainType})
         # Troops
-        GameState['Troops'] = []
-        red = []
-        blue = []
-        for i in range(units):
-            for j in range(units[i]):
+        GameState['Troops'] = [[],[]]
+        for i in range(len(units)):
+            for j in range(len(units[i])):
                 if units[i][j] is not None:
-                    num = 0 if (units[i][j] == 'Blue') else 1
-
+                    num = 0 if (units[i][j].team == 'Blue') else 1
                     GameState['Troops'][num].append(
                         {'x': j,
                          'y': i,
@@ -1247,7 +1247,7 @@ class Battle(PygameBaseClass):
                          'Can_move': int(units[i][j].hasMoved),
                          'HP': units[i][j].health
                          })
-
+        return GameState;
 # testMapPath = os.path.join('maps', 'gauntlet.tpm')
 # a = Battle.fromFile(testMapPath)
 # a.run()
