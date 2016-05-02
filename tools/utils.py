@@ -4,7 +4,6 @@ from copy import copy
 
 import MySQLdb
 
-#eliminar game
 
 #Convencciones EL TROOPS[0] ES BLUE Y EL TROOPS[1] ES RED
 
@@ -74,48 +73,61 @@ def tupleToGame():
 #nota 1 ya no es necesario first game id
 def getGamefromDb(idGame,cursor):
 
-    query = "SELECT * FROM `state`, `cell_states`   WHERE `state_id` = %s and `current_state_id` = %s" % idGame
+    query = "SELECT * FROM `state`, `cell_states`   WHERE `state_id` = %s and `current_state_id` = %s" \
+            "ORDER  BY `order_in_game` "
 
-    cursor.execute(query)
+    cursor.execute(query,(str(idGame),str(idGame)))
     result = cursor.fetchall()
 
     listGame = []
     currentId = -1
-    currentRow = 0
+    currentRow = None
 
-    # current_state_id
-    # game_id
-    # xi
-    # yi
-    # xf
-    # yf
-    # action
-    # order_in_game
-    # next_terminal
-    # xa
-    # ya
-    # id
-    # can_move
-    # x
-    # y
-    # terrain_type_id
-    # troop_id
-    # team_id
-    # hp
-    # state_id
+
 
     #get all rows in state,cell with game id
     for row in result:
 
-        rowId = 0
+        rowId = int(row['state_id'])
 
         if rowId != currentId:
-            #format action,nextTerminal, append to gameList
-            pass
+            #change currentRow
+            currentRow = {}
+            currentId = rowId
+            #format action
+            currentRow['Action'] = {}
+            currentRow['Action']['Xi'] = int(row['xi'])
+            currentRow['Action']['Yi'] = int(row['yi'])
+            currentRow['Action']['Xf'] = int(row['xf'])
+            currentRow['Action']['Yf'] = int(row['yf'])
+            currentRow['Action']['Xa'] = int(row['xa'])
+            currentRow['Action']['Ya'] = int(row['ya'])
+            currentRow['Action']['action_type'] = int(row['action'])
+
+            #format next_terminal
+            currentRow['next_terminal'] = int(row['next_terminal'])
+
+            #initialize terrain, troops as empty lists
+            currentRow['Terrain'] = []
+            #Troops contains two list BlueTroops = list[0], RedTroops=list[1]
+            currentRow['Troops'] = [[],[]]
+            #append to gameList
+            listGame.append(currentRow)
 
         #format cell things in currentRow object
+        newCellTerrain = {'x':int(row['x']),'y':int(row['y']),'Terrain_type':int(row['terrain_type_id'])}
 
-        pass
+        currentRow['Terrain'].append(newCellTerrain)
+
+        #Only add troop if troop_type != 0
+        troop_type = int(row['troop_id'])
+        if troop_type != 0:
+            newCellTroop = {'x':int(row['x']),'y':int(row['y'])
+                ,'Can_move':int(row['can_move']),'Troop':int(row['troop_id']),
+                            'Team':int(row['team_id']),'HP':int(row['hp'])
+                            }
+            currentTeam = int(row['team_id'])
+            currentRow['Troops'][currentTeam].append(newCellTroop)
 
     return listGame
 
@@ -145,7 +157,7 @@ def saveGameToDb(cursor, listaTrans, comment):
                    "  WHERE  `current_state_id`= %s ",(str(gameId),str(firstStateId)))
 
     #insert all the states
-    for i in range(1,len(game)):
+    for i in range(1,len(listaTrans)):
         saveTransitionToDb(cursor,listaTrans[i],gameId,i)
 
 """
@@ -159,16 +171,16 @@ def saveTransitionToDb(cursor,transition,gameId,orderInGame):
             " VALUES %s ; " \
             " "
 
-    params = ([str(gameId),
-              str(transition['Action']['Xi']),
-              str(transition['Action']['Yi']),
-              str(transition['Action']['Xf']),
-              str(transition['Action']['Yf']),
-              str(transition['Action']['action_type']),
-              str(orderInGame),
-              str(transition['next_terminal']),
-              str(transition['Action']['Xa']),
-              str(transition['Action']['Ya'])],
+    params = ([gameId,
+              transition['Action']['Xi'],
+              transition['Action']['Yi'],
+              transition['Action']['Xf'],
+              transition['Action']['Yf'],
+              transition['Action']['action_type'],
+              orderInGame,
+              transition['next_terminal'],
+              transition['Action']['Xa'],
+              transition['Action']['Ya']],
               )
     print params
     #current_state_id	game_id	xi	yi	xf	yf	action	order_in_game	next_terminal
@@ -193,7 +205,7 @@ def saveTransitionToDb(cursor,transition,gameId,orderInGame):
         listCell.append(idState)
         paramsString += (str(tuple(listCell))+' , ')
     paramsString = paramsString[:-2]
-    print paramsString
+    print 'Params to add ',paramsString
 
 
     #Add all cells to DB
@@ -240,8 +252,10 @@ def showMap(transition):
 
 if __name__ == '__main__':
     db = MySQLdb.connect("200.9.100.170", "bayes", "yesbayesyes", "bayes")
-    cursor = db.cursor()
-    saveGameToDb(cursor,testGame,'Este es el primer desde code')
+    # cursor = db.cursor()
+    cursor = db.cursor (MySQLdb.cursors.DictCursor)
+    # saveGameToDb(cursor,testGame,'Este es el primer desde code')
+    getGamefromDb(16,cursor)
 
     cursor.close()
     db.commit()
