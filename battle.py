@@ -1247,7 +1247,7 @@ class Battle(PygameBaseClass):
                          'Can_move': int(units[i][j].hasMoved),
                          'HP': units[i][j].health
                          })
-        return GameState;
+        return GameState
 # testMapPath = os.path.join('maps', 'gauntlet.tpm')
 # a = Battle.fromFile(testMapPath)
 # a.run()

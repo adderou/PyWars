@@ -3,10 +3,18 @@
 from copy import copy
 
 import MySQLdb
-
+import heapq
+import pygame
+from pygame.locals import *
+import numpy as np
+from skimage import io
+from skimage.transform import resize
+import skimage
+import pylab as plt
+import random
 
 #Convencciones EL TROOPS[0] ES BLUE Y EL TROOPS[1] ES RED
-
+from battle import Battle
 
 testGame = [
                 {
@@ -67,8 +75,6 @@ def gameToInputNN():
     pass
 
 
-def tupleToGame():
-    pass
 
 #nota 1 ya no es necesario first game id
 def getGamefromDb(idGame,cursor):
@@ -237,10 +243,111 @@ def jointCellTypes(transition):
             dictCell[(cell['x'], cell['y'])][order[key]] = cell[key]
     return dictCell
 
-def showMap(transition):
+#TODO get all posible actions
+def getLegalActions(state):
+    pass
+
+#TODO get next state from currentState, action
+def doTransition(state,action):
+    pass
+
+"""
+WE CALCULATE FOR RED PLAYER state["Troops"][0] = Red
+Reward for state,action,nextState
+For the first try the Network will estimate Q(s,a) as the EXPECTED COST from S taking action A.
+The agent try to take the minium cost path (path to goal WIN STATE).
+
+No enemys left = 0 (No cost Best case scenario)
+No troops left = 1 (Maxium cost Worst case)
+Else living penalty = 0.2 as an example (this make the agent end as quicly as posible)
+"""
+def calcReward(state,action,nextState):
+
+    lostGame = 1
+    win = 0
+    livingPenalty = 0.2
+
+    if len(nextState["Troops"][0]) == 0:
+        return lostGame
+    if len(nextState["Troops"][1]) == 0:
+        return win
+    else:
+        return livingPenalty
+
+def checkTerminal(state):
+    if len(state["Troops"][0]) == 0:
+        return True
+    if len(state["Troops"][1]) == 0:
+        return True
+    else:
+        return False
+
+#TODO encodeAction to Json
+def encodeActionJson():
+    pass
+
+def gameLoop(initialState,funStateAction,store=True,randomProb=0.5):
+    #get initial game state
+    game = []
+    state = initialState
+
+    nextState = None
+
+    while not(checkTerminal(state)):
+
+        #The python heap keep TUPLES (value,action) sorted by value like a heap
+        heapAction = []
+        accionesValidas = getLegalActions(state)
+
+        #Random action or evaluation ?
+        randomNumber = random.random()
+        if random < randomProb:
+            for action in accionesValidas:
+                value = funStateAction(state,action)
+                heapq.heappush(heapAction,(value,action))
+            bestValue, bestAction = heapq.heappop(heapAction)
+        else:
+            bestAction = random.choice(accionesValidas)
+            bestValue = -1
+
+        nextState = doTransition(state,bestAction)
+        reward = calcReward(state, bestAction, nextState)
+
+
+
+        #append transition to game
+        game.append(state)
+
+    #place terminal in last transition
+
+    if store:
+        #open db and store game
+        saveGameToDb(None,game,'GameComment')
+
+
+
+def generateTestCase():
+
+    #TODO create map independent from battle. A lot of innecesary stuff there and pygame is heavy
+
+    #Generate map
+    batalla = Battle.randomMap()
+
+    initialState = batalla.getGameState()
+
+    #Send agresive evaluation. Always try to attack
+    #TODO add function
+    evalfun = None
+
+    gameLoop(initialState,evalfun)
+
+
+def showTransition(transition):
+    rutaTiles = "tiles/"
+    rutaTroops="units/"
     dictMap = {0:'WaterOpen.png',
                1: 'Grass.png', 2: 'RoadInter.png',
-               3: 'Forest.png', 4: "Mountain.png", 5: 'RiverInter.png',
+               3: 'Forest.png', 4: "simpleMountain.png", 5: 'simpleRiver.png',
                6: 'BridgeHoriz.png'}
     dictTroop = {1:'Infantry.png',2:'RocketInf.png',
                  3:'SmTank.png',4:"LgTank.png",5:'Artillery.png',
@@ -250,18 +357,69 @@ def showMap(transition):
 
     #Create empty image 10 * 16
 
-    #for
+    base = io.imread("tiles/"+dictMap[0])
+    wImg = skimage.img_as_float(io.imread(rutaTroops + "wait.png"))
+    maxRows = 10
+    maxCols = 16
+    tileDim = 64
+
+    base = resize(base, (tileDim * maxRows, tileDim * maxCols))
+
+    for cell in transition["Terrain"]:
+        type = cell["Terrain_type"]
+        x = cell["x"]*tileDim
+        y = cell["y"]*tileDim
+        img = io.imread(rutaTiles+dictMap[type])
+        img = skimage.img_as_float(img)
+        base[y:y + img.shape[0],x:x + img.shape[1]] = img
+
+
+    #place troops
+    for index,side in enumerate(["Red","Blue"]):
+        for troop in transition["Troops"][index]:
+            canMove = troop["Can_move"]
+            hp = troop["HP"]
+            type = troop["Troop"]
+            img = skimage.img_as_float(io.imread(rutaTroops+side+dictTroop[type]))
+            hpImg = skimage.img_as_float(io.imread(rutaTroops+str(hp/10)+".png"))
+
+            x = troop["x"] * tileDim
+            y = troop["y"] * tileDim
+
+            mask = np.zeros(base.shape)
+            mask[y:y + img.shape[0], x:x + img.shape[1]] = img
+            ms = np.bool_(mask[:, :, 3])
+            base[ms] = mask[ms]
+
+            mask = np.zeros(base.shape)
+            mask[y:y + hpImg.shape[0], x:x + hpImg.shape[1]] = hpImg
+            ms = np.bool_(mask[:,:,3])
+            base[ms] = mask[ms]
+
+            if not canMove:
+                mask = np.zeros(base.shape)
+                mask[y:y + wImg.shape[0], x:x + wImg.shape[1]] = wImg
+                ms = np.bool_(mask[:, :, 3])
+                base[ms] = mask[ms]
+
+    #TODO add action representation
+
+    plt.imshow(base)
+    plt.show()
+
+
 
     pass
 
 
 if __name__ == '__main__':
-    db = MySQLdb.connect("200.9.100.170", "bayes", "yesbayesyes", "bayes")
-    # cursor = db.cursor()
-    cursor = db.cursor (MySQLdb.cursors.DictCursor)
-    saveGameToDb(cursor,testGame,'Este es el primer das code')
-    # getGamefromDb(16,cursor)
-
-    cursor.close()
-    db.commit()
-    db.close()
+    # db = MySQLdb.connect("200.9.100.170", "bayes", "yesbayesyes", "bayes")
+    # # cursor = db.cursor()
+    # cursor = db.cursor (MySQLdb.cursors.DictCursor)
+    # saveGameToDb(cursor,testGame,'Este es el primer das code')
+    # # getGamefromDb(16,cursor)
+    #
+    # cursor.close()
+    # db.commit()
+    # db.close()
+    generateTestCase()
