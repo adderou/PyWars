@@ -42,7 +42,7 @@ testGame = [
                         'Yf':4,
                         'Xa':5,
                         'Ya':6,
-                        'action_type':0
+                        'action_type':0 # Attacking if value is 1.
                     },
                     'next_terminal':-1 #If -1 Lost game in next_state 0 non terminal +1 won in next_state
                     }

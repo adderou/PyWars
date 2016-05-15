@@ -490,18 +490,21 @@ class Battle(PygameBaseClass):
                 self.movementRangeHelperFunction(map, unit,
                                                  newCoords, pointsAfterMove)
 
-    def getMovementRange(self):
+    def getMovementRangeOf(self, coords):
         """Calculate movement range from the current selection"""
         map = self.map.map
-        row, col = self.selection
+        row, col = coords
         unit = self.unitSpace[row][col]
         movementPoints = unit.movementPoints
-        self.movementRange.add(self.selection)
-        for newCoords in self.getNextTiles(map, unit, self.selection):
+        self.movementRange.add(coords)
+        for newCoords in self.getNextTiles(map, unit, coords):
                     self.movementRangeHelperFunction(map, unit,
                                                      newCoords,
                                                      movementPoints)
         self.drawMovementRange()
+
+    def getMovementRange(self):
+        self.getMovementRangeOf(self.selection)
 
     def clearMovementRange(self):
         """Clear the movement range and redrawing all of the tiles"""
@@ -730,8 +733,8 @@ class Battle(PygameBaseClass):
         self.redrawMapTile(newCoords)
         self.drawScreen()
 
-    def getArtilleryTargets(self):
-        cRow, cCol = self.attackerCoords
+    def getArtilleryTargetsIn(self,coords):
+        cRow, cCol = coords
         unit = self.unitSpace[cRow][cCol]
         maxDistance = unit.artilleryMaxRange
         minDistance = unit.artilleryMinRange
@@ -743,8 +746,11 @@ class Battle(PygameBaseClass):
                     (minDistance <= taxicabDistance <= maxDistance)):
                     self.targets.append((row, col))
 
-    def getTargets(self):
-        cRow, cCol = self.attackerCoords
+    def getArtilleryTargets(self):
+        self.getArtilleryTargetsIn(self.attackerCoords)
+
+    def getTargetsIn(self,coords):
+        cRow, cCol = coords
         directions = [(-1, 0), (0, 1), (1, 0), (0, -1)]
         for (dRow, dCol) in directions:
             row = cRow + dRow
@@ -752,6 +758,9 @@ class Battle(PygameBaseClass):
             if ((0 <= row < self.rows) and (0 <= col < self.cols) and
                 self.isBlocked((row, col))):
                 self.targets.append((row, col))
+
+    def getTargets(self):
+        self.getTargetsIn(self.attackerCoords)
 
     def removeUnit(self, coords):
         row, col = coords
@@ -1248,6 +1257,50 @@ class Battle(PygameBaseClass):
                          'HP': units[i][j].health
                          })
         return GameState
+
+    def getPossibleMoves(self, position):
+        print position
+        xi, yi = position
+        unit = self.unitSpace[xi][yi]
+        possible = []
+        # Conseguir todas las posibles posiciones
+        self.getMovementRangeOf(position)
+        movRange = self.movementRange
+        # Para cada posible posicion
+        for mov in movRange:
+            entry = {}
+            xf,yf = mov
+            entry['Xi'] = xi
+            entry['Yi'] = yi
+            entry['Xf'] = xf
+            entry['Yf'] = yf
+            entry['Xa'] = 0
+            entry['Ya'] = 0
+            entry['Can_move'] = 0
+            # Agregarla a la lista como movimiento
+            # Para cada posicion del mapa
+            possible.append(entry)
+            if unit.isArtilleryUnit:
+                self.getArtilleryTargetsIn(mov)
+            else:
+                self.getTargetsIn(mov)
+            for coords in self.targets:
+                xa,ya = coords
+                taxicabDistance = abs(yi - ya) + abs(xi - xa)
+                # Si hay algun enemigo en ella, agregar a la lista como movimiento
+                if self.canAttack(unit,coords,taxicabDistance):
+                    entry = {}
+                    entry['Xi'] = xi
+                    entry['Yi'] = yi
+                    entry['Xf'] = xf
+                    entry['Yf'] = yf
+                    entry['Xa'] = xa
+                    entry['Ya'] = ya
+                    entry['Can_move'] = 1
+                    possible.append(entry)
+        # Devolver lista de movimientos posibles
+        return possible
+
 # testMapPath = os.path.join('maps', 'gauntlet.tpm')
 # a = Battle.fromFile(testMapPath)
 # a.run()

@@ -114,7 +114,7 @@ class RocketInf(Unit):
     Strong against Vehicles. Weak against Infantry.
     """
     type = 'RocketInf'
-    movementPoints = 33
+    movementPoints = 5
     movementCost = {
         0: -1,
         1: 1,
