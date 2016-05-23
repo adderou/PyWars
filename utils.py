@@ -2,6 +2,8 @@
 # X hacia abajo Y hacia la derecha centrado en la esquina sup izq
 from copy import copy
 
+import units
+from map import Tile
 import MySQLdb
 import heapq
 import pygame
@@ -244,12 +246,104 @@ def jointCellTypes(transition):
     return dictCell
 
 #TODO get all posible actions
-def getLegalActions(state):
+def getPosibles(state, troop):
+    pass
+
+
+def getLegalActions(state,turn):
+
+    current_Team = turn
+    Allactions = []
+    for troop in state["Troops"][current_Team]:
+        troopActions = getPosibles(state,troop)
+        Allactions += troopActions
+
+    return Allactions
     pass
 
 #TODO get next state from currentState, action
+"""
+This function calculate next_state given current_state, action
+THIS FUNCTION CAN MAKE ILEGAL ACTIONS must call a getlegal_actions() to be safe
+
+ACTION_TYPE = 0 Just Move
+ACTION_TYPE = 1 Move and Attack
+
+"""
 def doTransition(state,action):
-    pass
+
+    #after the action go to wait (troop["Can_move"] = 0)
+    #if you just wait move from Xi to Xf = Xi
+    state = state.copy()
+
+
+    currentTroop = None
+    #get troop in cords
+    for troop in (state["Troops"][0] +state["Troops"][1]) :
+        if troop["x"] == action['Xi'] and troop["y"] == action['Yi']:
+            currentTroop = troop
+
+    current_team = currentTroop["Team"]
+
+    #Could it move?
+    assert(troop["Can_move"])
+    #move to Xf,Yf
+    troop['x'] = action['Xf']
+    troop['y'] = action['Yf']
+
+    #Action_type = 0 just move so we end TROOP_TURN
+    if action["action_type"] == 0:
+        troop["Can_move"] = 0
+
+
+    #Action_type = 1 Attack_Move. Troop A in (Xi,Yi) attacks Troop B in (Xa,Ya)
+    if action["action_type"] == 1:
+
+        #get troop A
+        troopA = currentTroop
+        #getTroopB
+        troopB = None
+        troopB = [troop for troop in state["Troops"][1-current_team] if ((troop["x"] == action['Xa']) and (troop["y"] == action['Ya']))][0]
+
+        #get env
+
+        terrAly = [terrain for terrain in state["Terrain"] if ((terrain["x"] == action['Xi']) and (terrain["y"] == action['Yi']))][0]
+        terrEnemy = [terrain for terrain in state["Terrain"] if ((terrain["x"] == action['Xa']) and (terrain["y"] == action['Ya']))][0]
+
+        atkEnv = Tile.defence[terrAly]
+        defEnv = Tile.defence[terrEnemy]
+
+        #Crear tropa simulada desde tropa jason
+        attacker =  units.troopFromJson(troopA)
+        defender = units.troopFromJson(troopB)
+
+        #realiza calculo de ataque
+
+
+        #End troop TURN so we wait (just the attacker wait)
+        troopA["Can_move"] = 0
+
+        #calculo damage defender
+        defender.health -= attacker.getAttackDamage(defender, defEnv)
+        #Si hp defensor es 0 eliminar de tropas
+        if defender.health <= 0:
+            state["Troops"][1-current_team].remove(troopB)
+        else:
+            troopB["HP"] = defender.health
+            if not attacker.isArtilleryUnit and not defender.isArtilleryUnit:
+                attacker.health -= defender.getRetaliatoryDamage(attacker, atkEnv)
+                #si hp de atacante es cero eliminar de troops
+                if attacker.health <= 0:
+                    state["Troops"][current_team].remove(troopA)
+                else:
+                    troopA["HP"] = attacker.health
+
+        #Hp actualizado
+
+
+
+
+    return state
 
 """
 WE CALCULATE FOR RED PLAYER state["Troops"][0] = Red
@@ -261,15 +355,19 @@ No enemys left = 0 (No cost Best case scenario)
 No troops left = 1 (Maxium cost Worst case)
 Else living penalty = 0.2 as an example (this make the agent end as quicly as posible)
 """
-def calcReward(state,action,nextState):
+def calcReward(state,action,nextState,currentTurn):
+
+    #teams are 0 or 1
+    aly = currentTurn
+    enemy = 1-aly
 
     lostGame = 1
     win = 0
     livingPenalty = 0.2
 
-    if len(nextState["Troops"][0]) == 0:
+    if len(nextState["Troops"][aly]) == 0:
         return lostGame
-    if len(nextState["Troops"][1]) == 0:
+    if len(nextState["Troops"][enemy]) == 0:
         return win
     else:
         return livingPenalty
@@ -292,6 +390,9 @@ def gameLoop(initialState,funStateAction,store=True,randomProb=0.5):
     state = initialState
 
     nextState = None
+
+    #Is red or blue turn?
+    activeTeam = 0
 
     while not(checkTerminal(state)):
 
@@ -318,15 +419,19 @@ def gameLoop(initialState,funStateAction,store=True,randomProb=0.5):
         #append transition to game
         game.append(state)
 
+        activeTeam = 1-activeTeam
+
     #place terminal in last transition
 
     if store:
         #open db and store game
         saveGameToDb(None,game,'GameComment')
 
+    return game
 
 
-def generateTestCase():
+
+def generateTestCase(store=True):
 
     #TODO create map independent from battle. A lot of innecesary stuff there and pygame is heavy
 
@@ -336,10 +441,12 @@ def generateTestCase():
     initialState = batalla.getGameState()
 
     #Send agresive evaluation. Always try to attack
-    #TODO add function
-    evalfun = None
+    #If action type == 1 is an attack then eval to 1 else eval to 0
+    evalfun = lambda action : 1*(action['action_type'])
 
-    gameLoop(initialState,evalfun)
+    game = gameLoop(initialState,evalfun)
+
+    print "Game generation ended ",len(game)," transitions"
 
 
 def showTransition(transition):
@@ -422,4 +529,7 @@ if __name__ == '__main__':
     # cursor.close()
     # db.commit()
     # db.close()
-    generateTestCase()
+    game = generateTestCase(False)
+
+    for transition in game:
+        showTransition(transition)

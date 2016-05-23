@@ -9,11 +9,37 @@ import os
 import pygame
 from pygame.locals import *
 
+
+def troopFromJson(jsonTroop):
+    type = jsonTroop['Troop']
+    hp = jsonTroop['HP']
+    team = jsonTroop['Team']+1
+
+    newTroop = troopClassTypeDict[type](team)
+    newTroop.hp = hp
+    return newTroop
+    pass
+
+"""
+It cant get x,y, Can_move of troop !!!!
+"""
+def troppToJson(troop):
+
+    newTroop ={'x':None,
+               'y':None,
+               'Can_move':None,
+               'Troop':troop.unitCode,
+               'Team':troop.team,
+               'HP':troop.health
+                            }
+    return newTroop
+
 class Unit(pygame.sprite.Sprite):
     """
     Represent a game unit.
     """
     type = 'Unit'
+    unitCode = None
     # define unit movement points and movement cost for each terrain type
     movementPoints = 5
     movementCost = dict()
@@ -95,6 +121,7 @@ class Infantry(Unit):
     """
     type = 'Infantry'
     movementPoints = 4
+    unitCode = 1
     movementCost = {
         0: -1,
         1: 1,
@@ -114,6 +141,7 @@ class RocketInf(Unit):
     Strong against Vehicles. Weak against Infantry.
     """
     type = 'RocketInf'
+    unitCode = 2
     movementPoints = 5
     movementCost = {
         0: -1,
@@ -141,6 +169,7 @@ class APC(Unit):
     Wheeled unit. Particularly effective against infantry.
     """
     type = 'APC'
+    unitCode = 6
     movementPoints = 9
     movementCost = {
         0: -1,
@@ -161,6 +190,7 @@ class APC(Unit):
 
 class SmTank(Unit):
     type = 'SmTank'
+    unitCode = 3
     movementPoints = 5
     movementCost = {
         0: -1,
@@ -177,6 +207,7 @@ class SmTank(Unit):
 
 class LgTank(Unit):
     type = 'LgTank'
+    unitCode = 4
     movementPoints = 4
     movementCost = {
         0: -1,
@@ -193,6 +224,7 @@ class LgTank(Unit):
 
 class Artillery(Unit):
     type = 'Artillery'
+    unitCode = 5
     movementPoints = 4
     movementCost = {
         0: -1,
@@ -209,3 +241,17 @@ class Artillery(Unit):
     artilleryMaxRange = 3
     attack = 85
     defense = 20
+
+
+troopClassTypeDict = {1: Infantry,
+                 2: RocketInf,
+                 3: SmTank,
+                 4: LgTank,
+                 5: Artillery,
+                 6:APC}
+# 1	infantry
+# 2	rocketinf
+# 3	smtank
+# 4	lgtank
+# 5	artillery
+# 6	apc

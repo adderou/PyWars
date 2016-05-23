@@ -221,7 +221,7 @@ class Battle(PygameBaseClass):
         self.initialFunds = initialFunds
         self.teams = self.createTeams()
         self.placeInitialUnits(initialUnits)
-        print self.getGameState()
+        # print self.getGameState()
 
     def initGraphics(self):
         self.camWidth = 16
@@ -1253,16 +1253,17 @@ class Battle(PygameBaseClass):
                          'y': i,
                          'Team': num,
                          'Troop': invShopTypes[units[i][j].type],
-                         'Can_move': int(units[i][j].hasMoved),
+                         'Can_move': (1-int(units[i][j].hasMoved)),
                          'HP': units[i][j].health
                          })
         return GameState
 
     def getPossibleMoves(self, position):
-        print position
+        # print position
         xi, yi = position
         unit = self.unitSpace[xi][yi]
-        possible = []
+        justMove = []
+        moveAttack = []
         # Conseguir todas las posibles posiciones
         self.getMovementRangeOf(position)
         movRange = self.movementRange
@@ -1279,7 +1280,7 @@ class Battle(PygameBaseClass):
             entry['Can_move'] = 0
             # Agregarla a la lista como movimiento
             # Para cada posicion del mapa
-            possible.append(entry)
+            justMove.append(entry)
             if unit.isArtilleryUnit:
                 self.getArtilleryTargetsIn(mov)
             else:
@@ -1297,9 +1298,9 @@ class Battle(PygameBaseClass):
                     entry['Xa'] = xa
                     entry['Ya'] = ya
                     entry['Can_move'] = 1
-                    possible.append(entry)
+                    moveAttack.append(entry)
         # Devolver lista de movimientos posibles
-        return possible
+        return justMove,moveAttack
 
 # testMapPath = os.path.join('maps', 'gauntlet.tpm')
 # a = Battle.fromFile(testMapPath)
