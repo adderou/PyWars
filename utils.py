@@ -1,6 +1,7 @@
 #
 # X hacia abajo Y hacia la derecha centrado en la esquina sup izq
 from copy import copy
+from copy import deepcopy
 
 import units
 from map import Tile
@@ -246,20 +247,21 @@ def jointCellTypes(transition):
     return dictCell
 
 #TODO get all posible actions
-def getPosibles(state, troop):
-    pass
+def getActionTroop(state, troop):
+    if troop['Can_move']:
+        return [{
+            'Xi': troop['x'],
+            'Yi': troop['y'],
+            'Xf': troop['x']+1,
+            'Yf': troop['y'],
+            'Xa': 0,
+            'Ya': 0,
+            'action_type': 0  # MoveAttack if value is 1, 0 just move.
+        }
+        ]
+    return []
 
 
-def getLegalActions(state,turn):
-
-    current_Team = turn
-    Allactions = []
-    for troop in state["Troops"][current_Team]:
-        troopActions = getPosibles(state,troop)
-        Allactions += troopActions
-
-    return Allactions
-    pass
 
 #TODO get next state from currentState, action
 """
@@ -274,7 +276,7 @@ def doTransition(state,action):
 
     #after the action go to wait (troop["Can_move"] = 0)
     #if you just wait move from Xi to Xf = Xi
-    state = state.copy()
+    state = deepcopy(state)
 
 
     currentTroop = None
@@ -286,14 +288,14 @@ def doTransition(state,action):
     current_team = currentTroop["Team"]
 
     #Could it move?
-    assert(troop["Can_move"])
+    assert(currentTroop["Can_move"])
     #move to Xf,Yf
-    troop['x'] = action['Xf']
-    troop['y'] = action['Yf']
+    currentTroop['x'] = action['Xf']
+    currentTroop['y'] = action['Yf']
 
     #Action_type = 0 just move so we end TROOP_TURN
     if action["action_type"] == 0:
-        troop["Can_move"] = 0
+        currentTroop["Can_move"] = 0
 
 
     #Action_type = 1 Attack_Move. Troop A in (Xi,Yi) attacks Troop B in (Xa,Ya)
@@ -310,8 +312,8 @@ def doTransition(state,action):
         terrAly = [terrain for terrain in state["Terrain"] if ((terrain["x"] == action['Xi']) and (terrain["y"] == action['Yi']))][0]
         terrEnemy = [terrain for terrain in state["Terrain"] if ((terrain["x"] == action['Xa']) and (terrain["y"] == action['Ya']))][0]
 
-        atkEnv = Tile.defence[terrAly]
-        defEnv = Tile.defence[terrEnemy]
+        atkEnv = Tile.defenseValues[terrAly['Terrain_type']]
+        defEnv = Tile.defenseValues[terrEnemy['Terrain_type']]
 
         #Crear tropa simulada desde tropa jason
         attacker =  units.troopFromJson(troopA)
@@ -372,13 +374,13 @@ def calcReward(state,action,nextState,currentTurn):
     else:
         return livingPenalty
 
-def checkTerminal(state):
-    if len(state["Troops"][0]) == 0:
-        return True
-    if len(state["Troops"][1]) == 0:
-        return True
+def checkTerminal(state,currentTurn):
+    if len(state["Troops"][1-currentTurn]) == 0:
+        return 1
+    if len(state["Troops"][currentTurn]) == 0:
+        return -1
     else:
-        return False
+        return 0
 
 #TODO encodeAction to Json
 def encodeActionJson():
@@ -394,35 +396,45 @@ def gameLoop(initialState,funStateAction,store=True,randomProb=0.5):
     #Is red or blue turn?
     activeTeam = 0
 
-    while not(checkTerminal(state)):
+    while checkTerminal(state,activeTeam) == 0:
 
-        #The python heap keep TUPLES (value,action) sorted by value like a heap
-        heapAction = []
-        accionesValidas = getLegalActions(state)
+        for troop in state['Troops'][activeTeam]:
+            heapAction = [] #The python heap keep TUPLES (value,action) sorted by value like a heap
+            accionesValidas = getActionTroop(state,troop)
 
-        #Random action or evaluation ?
-        randomNumber = random.random()
-        if random < randomProb:
-            for action in accionesValidas:
-                value = funStateAction(state,action)
-                heapq.heappush(heapAction,(value,action))
-            bestValue, bestAction = heapq.heappop(heapAction)
-        else:
-            bestAction = random.choice(accionesValidas)
-            bestValue = -1
+            #Random action or evaluation ?
+            randomNumber = random.random()
+            if randomNumber < randomProb:
+                for action in accionesValidas:
+                    value = funStateAction(state,action)
+                    heapq.heappush(heapAction,(value,action))
+                bestValue, bestAction = heapq.heappop(heapAction)
+            else:
+                bestAction = random.choice(accionesValidas)
+                bestValue = -1
 
-        nextState = doTransition(state,bestAction)
-        reward = calcReward(state, bestAction, nextState)
+            nextState = doTransition(state,bestAction)
+            reward = calcReward(state, bestAction, nextState,activeTeam)
 
+            #place if next state is win,lose or non terminal
+            state['next_terminal'] = checkTerminal(nextState,activeTeam)
 
+            #append transition to game
+            game.append(state)
+            state = nextState
 
-        #append transition to game
-        game.append(state)
+            # maybe we win but we havent move all
+            if checkTerminal(state, activeTeam) != 0:
+                break
 
+        #after all troops moved refresh troop_wait and give turn to opponent
+        for troop in state['Troops'][activeTeam]:
+            troop['Can_move'] = 1
         activeTeam = 1-activeTeam
 
-    #place terminal in last transition
 
+
+    #place terminal in last transition
     if store:
         #open db and store game
         saveGameToDb(None,game,'GameComment')
@@ -442,7 +454,7 @@ def generateTestCase(store=True):
 
     #Send agresive evaluation. Always try to attack
     #If action type == 1 is an attack then eval to 1 else eval to 0
-    evalfun = lambda action : 1*(action['action_type'])
+    evalfun = lambda state,action : 1*(action['action_type'])
 
     game = gameLoop(initialState,evalfun)
 
