@@ -5,12 +5,9 @@
 # Based on Advance Wars (Intelligent Systems, Nintendo)
 
 import copy
-import random
-import pygame
-from pygame.locals import *
-from pygameBaseClass import PygameBaseClass
-from map import *
-from units import *
+from map2 import *
+from units2 import *
+
 
 class Team():
     colors = ["Red", "Blue", "Green", "Yellow"]
@@ -25,15 +22,9 @@ class Team():
         self.camTop = camRect[1]
         self.camRight = camRect[2]
         self.camBottom = camRect[3]
-        self.hudImage = self.getHudImage()
 
-    def getHudImage(self):
-        filename = self.color + 'Background.png'
-        path = os.path.join('backgrounds', filename)
-        image = pygame.image.load(path)
-        return image
 
-class Battle(PygameBaseClass):
+class Battle():
     """Main gametype"""
 
     shopTypes = {
@@ -205,7 +196,7 @@ class Battle(PygameBaseClass):
                 y = random.randint(max(0, y - d), min(15, y + d))
             used.append((x,y))
             unitString += str(1) + " " + str(unitType) + " " + str(x) + "," + str(y) + "\n"
-            team2Size -= 1;
+            team2Size -= 1
         return unitString, used
 
     ##################################################################
@@ -230,7 +221,6 @@ class Battle(PygameBaseClass):
         self.screenTopLeft = (0, 128)
         self.screenDisplaySize = (1024, 640)
         self.screenSize = (self.map.cols*Tile.size, self.map.rows*Tile.size)
-        self.screen = pygame.Surface(self.screenSize)
         self.camTop = 0
         self.camLeft = 0
         self.camBottom = 10
@@ -297,16 +287,9 @@ class Battle(PygameBaseClass):
             self.unitSpace[row][col] = unit
             team.units.add(unit)
 
-    def beginMusic(self):
-        pygame.mixer.music.fadeout(1000)
-        musicpath = os.path.join('audio', 'battle.ogg')
-        pygame.mixer.music.load(musicpath)
-        pygame.mixer.music.set_volume(0.2)
-        pygame.mixer.music.play(-1)
 
     def initGame(self):
         """Set up initial game conditions"""
-        self.beginMusic()
         self.gameIsOver = False
         self.eliminatedPlayers = set()
         self.contextMenuIsOpen = False
@@ -323,17 +306,11 @@ class Battle(PygameBaseClass):
         self.playerIndex = firstPlayer
         self.activePlayer = self.teams[self.playerIndex]
         self.activeUnits = copy.copy(self.activePlayer.units)
-        self.loadCursor()
-        self.loadMovementOverlay()
-        self.loadMovedMarker()
-        self.loadTargetOverlay()
         self.movementRange = set()
         self.cursorCoords = (0, 0)
         self.targetCoords = None
         self.targets = []
         self.targetIndex = 0
-        self.drawMap()
-        self.drawAllUnits()
         self.beginTurn()
 
     def getHeldObjectives(self):
@@ -346,42 +323,6 @@ class Battle(PygameBaseClass):
                 if isinstance(tile, Objective) and tile.teamNum != 4:
                     holdingTeam = self.teams[tile.teamNum]
                     holdingTeam.heldObjectives.append(tile)
-
-    def loadCursor(self):
-        """Create a white overlay, one tile in size, and store it in
-        self.cursor"""
-        self.cursor = pygame.Surface((Tile.size, Tile.size))
-        color = pygame.Color('White')
-        rect = pygame.Rect(0, 0, Tile.size, Tile.size)
-        pygame.draw.rect(self.cursor, color, rect)
-        self.cursor.set_alpha(128)
-
-    def loadMovementOverlay(self):
-        """Create a green overlay, one tile in size, and store it in
-        self.movementOverlay"""
-        self.movementOverlay = pygame.Surface((Tile.size, Tile.size))
-        color = pygame.Color('Green')
-        rect = pygame.Rect(0, 0, Tile.size, Tile.size)
-        pygame.draw.rect(self.movementOverlay, color, rect)
-        self.movementOverlay.set_alpha(128)
-
-    def loadMovedMarker(self):
-        """Create a brown overlay, one tile in size, and store it in
-        self.movedMarker"""
-        self.movedMarker = pygame.Surface((Tile.size, Tile.size))
-        color = pygame.Color('#804000')
-        rect = pygame.Rect(0, 0, Tile.size, Tile.size)
-        pygame.draw.rect(self.movedMarker, color, rect)
-        self.movedMarker.set_alpha(128)
-
-    def loadTargetOverlay(self):
-        """Create a green overlay, one tile in size, and store it in
-        self.targetOverlay"""
-        self.targetOverlay = pygame.Surface((Tile.size, Tile.size))
-        color = pygame.Color('Red')
-        rect = pygame.Rect(0, 0, Tile.size, Tile.size)
-        pygame.draw.rect(self.targetOverlay, color, rect)
-        self.targetOverlay.set_alpha(128)
 
     ##################################################################
     # Gameplay methods
@@ -403,24 +344,18 @@ class Battle(PygameBaseClass):
         self.selection = None
         self.clearMovementRange()
         self.restoreUnitHealth()
-        self.drawAllUnits()
-        self.drawScreen()
-        self.drawHUD()
 
     def placeCursor(self, coords):
         """Move the cursor to a new location, redrawing the old and new
         locations"""
         oldRow, oldCol = self.cursorCoords
         self.cursorCoords = coords
-        self.redrawMapTile((oldRow, oldCol))
-        self.redrawMapTile(self.cursorCoords)
 
     def placeUnit(self, team, type, coords):
         """Place and draw the given unit in the given tile"""
         row, col = coords
         teamColor = self.teams[team].color
         self.unitSpace[row][col] = type(team)
-        self.drawUnit(coords)
 
     def adjustCam(self):
         row, col = self.cursorCoords
@@ -436,7 +371,6 @@ class Battle(PygameBaseClass):
         elif row >= self.camBottom:
             self.camTop += 1
             self.camBottom += 1
-        self.drawScreen()
 
     def moveCursor(self, dir):
         """Handle motion of the cursor by the arrow keys"""
@@ -501,7 +435,6 @@ class Battle(PygameBaseClass):
                     self.movementRangeHelperFunction(map, unit,
                                                      newCoords,
                                                      movementPoints)
-        self.drawMovementRange()
 
     def getMovementRange(self):
         self.getMovementRangeOf(self.selection)
@@ -510,9 +443,7 @@ class Battle(PygameBaseClass):
         """Clear the movement range and redrawing all of the tiles"""
         oldMovementRange = self.movementRange
         self.movementRange = set()
-        for tile in oldMovementRange:
-            self.redrawMapTile(tile)
-        self.drawScreen()
+
 
     def checkArtilleryRange(self, unit, coords):
         maxDistance = unit.artilleryMaxRange
@@ -565,7 +496,6 @@ class Battle(PygameBaseClass):
             key += 1
             self.captureKey = str(key)
             self.contextMenuOptions[1] = True
-        self.drawHUD()
 
     def moveUnit(self, old, new):
         """Move the unit from one tile to another"""
@@ -575,8 +505,6 @@ class Battle(PygameBaseClass):
             unit = self.unitSpace[oldRow][oldCol]
             self.unitSpace[newRow][newCol] = unit
             self.unitSpace[oldRow][oldCol] = None
-            self.redrawMapTile(old)
-            self.redrawMapTile(new)
         self.selection = None
         self.clearMovementRange()
 
@@ -599,7 +527,6 @@ class Battle(PygameBaseClass):
                   (tile.type == 'Factory')):
                 self.shopIsOpen = True
                 self.shopCoords = self.cursorCoords
-                self.drawScreen()
         elif (self.cursorCoords in self.movementRange and
               (self.unitSpace[row][col] == None or
                self.selection == self.cursorCoords)):
@@ -609,8 +536,6 @@ class Battle(PygameBaseClass):
             taxicabDistance = abs(newRow - oldRow) + abs(newCol - oldCol)
             unit = self.unitSpace[newRow][newCol]
             self.openContextMenu(unit, self.newCoords, taxicabDistance)
-        else:
-            self.clearSelection
 
     def clearSelection(self):
         """Clear the selection and the movement range"""
@@ -663,14 +588,11 @@ class Battle(PygameBaseClass):
         self.unitIsSelected = False
         self.activeUnits.remove(unit)
         self.contextMenuIsOpen = False
-        self.redrawMapTile(self.newCoords)
-        self.drawScreen()
 
     def revertMove(self):
         self.moveUnit(self.newCoords, self.oldCoords)
         self.contextMenuIsOpen = False
         self.unitIsSelected = False
-        self.drawHUD()
 
     def endGame(self):
         self.gameIsOver = True
@@ -678,7 +600,6 @@ class Battle(PygameBaseClass):
         for team in self.teams:
             if team.teamNumber not in self.eliminatedPlayers:
                 self.winner = team
-        self.drawScreen()
 
     def removeTeam(self, teamNum):
         self.eliminatedPlayers.add(teamNum)
@@ -694,10 +615,6 @@ class Battle(PygameBaseClass):
                     self.map.map[row][col] = Objective((4, typeNum))
         if self.numPlayers - len(self.eliminatedPlayers) == 1:
             self.endGame()
-        self.map.refreshImage()
-        self.drawMap()
-        self.drawAllUnits()
-        self.drawScreen()
 
     def capture(self):
         row, col = self.newCoords
@@ -716,22 +633,12 @@ class Battle(PygameBaseClass):
             newObjective = Objective((team, type))
             self.map.map[row][col] = newObjective
             self.activePlayer.heldObjectives.append(newObjective)
-            self.map.refreshImage()
-            self.redrawMapTile((row, col))
-            self.redrawMapTile((row-1, col))
-            self.drawScreen()
         self.wait()
 
     def moveTarget(self):
-        oldCoords = None
         newCoords = self.targets[self.targetIndex]
-        if self.targetCoords != None:
-            oldCoords = self.targetCoords
         self.targetCoords = newCoords
-        if oldCoords != None:
-            self.redrawMapTile(oldCoords)
-        self.redrawMapTile(newCoords)
-        self.drawScreen()
+
 
     def getArtilleryTargetsIn(self,coords):
         cRow, cCol = coords
@@ -824,19 +731,14 @@ class Battle(PygameBaseClass):
         elif keyName == 'z':
             self.inAttackMode = False
             self.attack()
-            self.redrawMapTile(self.attackerCoords)
-            self.redrawMapTile(self.targetCoords)
-            self.drawScreen()
+
         elif keyName == 'x':
             self.inAttackMode = False
-            self.redrawMapTile(self.attackerCoords)
-            self.redrawMapTile(self.targetCoords)
-            self.drawScreen()
+
 
     def shop(self, keyName):
         if keyName == 'x':
             self.shopIsOpen = False
-            self.drawScreen()
         elif keyName in '123456':
             num = int(keyName)
             cost = Battle.shopCosts[num]
@@ -849,377 +751,20 @@ class Battle(PygameBaseClass):
                 unit = self.unitSpace[row][col]
                 self.activePlayer.units.add(unit)
                 unit.hasMoved = True
-                self.redrawMapTile(self.shopCoords)
                 self.shopIsOpen = False
-                self.drawScreen()
 
-    def onKeyDown(self, event):
-        """Handle keypresses"""
-        keyName = pygame.key.name(event.key)
-        if keyName == 'escape':
-            self.quit()
-        elif self.gameIsOver:
-            self.quit()
-        elif self.shopIsOpen:
-            self.shop(keyName)
-        elif self.inAttackMode:
-            self.attackMode(keyName)
-        elif self.contextMenuIsOpen:
-            self.contextMenu(keyName)
-        elif keyName in ['left', 'right', 'up', 'down']:
-            self.moveCursor(keyName)
-        elif keyName == 'z':
-            self.updateSelection()
-        elif keyName == 'x':
-            self.clearSelection()
-        elif keyName == 'space':
-            self.endTurn()
+
 
     ##################################################################
     # Drawing to "screen" surface
     ##################################################################
 
-    def redrawMapTile(self, coords):
-        """Redraw the tile at the given coords"""
-        row, col = coords
-        left, top = col * Tile.size, row * Tile.size
-        width = height = Tile.size
-        self.drawMap(pygame.Rect(left, top, width, height))
-        self.drawUnit(coords)
-        if coords in self.movementRange:
-            self.drawMovementOverlay(coords)
-        if coords == self.cursorCoords:
-            self.drawCursor(coords)
-        if self.inAttackMode and coords == self.targetCoords:
-            self.drawTargetOverlay(coords)
 
-    def drawMap(self, boundingBox=None):
-        """Draw the game map to the screen. If a boundingBox rect is given,
-        only draw that portion of the map. Otherwise, draw the entire map."""
-        if boundingBox == None:
-            self.screen.blit(self.map.image, (0,0))
-            self.drawScreen()
-        else:
-            self.screen.blit(self.map.image, boundingBox, area=boundingBox)
-
-    def drawMovedMarker(self, coords):
-        row, col = coords
-        top, left = row * Tile.size, col * Tile.size
-        self.screen.blit(self.movedMarker, (left, top))
-
-    def drawUnit(self, coords):
-        """Draw a single unit at the specified unit space coords"""
-        row, col = coords
-        unit = self.unitSpace[row][col]
-        if unit != None:
-            drawCoords = (col*Tile.size, row*Tile.size)
-            self.screen.blit(unit.image, drawCoords)
-            if unit.hasMoved:
-                self.drawMovedMarker(coords)
-
-    def drawAllUnits(self):
-        """Draw all the units in the unit space"""
-        for row in xrange(self.rows):
-            for col in xrange(self.cols):
-                unit = self.unitSpace[row][col]
-                if unit != None:
-                    self.redrawMapTile((row,col))
-        self.drawScreen()
-
-    def drawCursor(self, coords):
-        """Draws a white rectangle"""
-        row, col = coords
-        top, left = row * Tile.size, col * Tile.size
-        self.screen.blit(self.cursor, (left, top))
-
-    def drawMovementOverlay(self, coords):
-        """Draw an overlay on the tile specified by the coords"""
-        row, col = coords
-        top, left = row * Tile.size, col * Tile.size
-        self.screen.blit(self.movementOverlay, (left, top))
-
-    def drawMovementRange(self):
-        """Placeholder. draws a green rectangle"""
-        for tile in self.movementRange:
-            self.redrawMapTile(tile)
-        self.drawScreen()
-
-    def drawTargetOverlay(self, coords):
-        row, col = coords
-        top, left = row * Tile.size, col * Tile.size
-        self.screen.blit(self.targetOverlay, (left, top))
 
     ##################################################################
     # Drawing to the screen
     ##################################################################
 
-    def drawScreen(self):
-        displayTopLeft = (self.camLeft * Tile.size, self.camTop * Tile.size)
-        displayDimensions = (self.camWidth * Tile.size,
-                             self.camHeight * Tile.size)
-        boundingBox = Rect(displayTopLeft, displayDimensions)
-        self.display.blit(self.screen, self.screenTopLeft, area=boundingBox)
-        self.drawHUD()
-        pygame.display.flip()
-
-    def drawBackground(self):
-        background = self.activePlayer.hudImage
-        self.display.blit(background, (0, 0))
-
-    def drawHUDTileImage(self, tile, coords):
-        x, y = coords
-        image = tile.staticImage
-        self.display.blit(image, (x, y - tile.overflow))
-
-    def drawHUDTileName(self, tile, coords):
-        nameFont = pygame.font.SysFont('Arial', 24, True)
-        nameText = tile.name
-        name = nameFont.render(nameText, 1, (0, 0, 0))
-        self.display.blit(name, coords)
-
-    def drawHUDTileDef(self, tile, coords):
-        defFont = pygame.font.SysFont('Arial', 18)
-        defText = "Def: " + str(tile.defense)
-        defSurf = defFont.render(defText, 1, (0, 0, 0))
-        self.display.blit(defSurf, coords)
-
-    def drawHUDObjHealth(self, tile, coords):
-        healthFont = pygame.font.SysFont('Arial', 18)
-        healthText = "HP: " + str(tile.health)
-        health = healthFont.render(healthText, 1, (0, 0, 0))
-        self.display.blit(health, coords)
-
-    def drawTerrainInfo(self):
-        left, top = 1024, 654
-        row, col = self.cursorCoords
-        tile = self.map.map[row][col]
-        imageCoords = (left + 32 , top + 4)
-        self.drawHUDTileImage(tile, imageCoords)
-        nameCoords = (left + 112, top)
-        self.drawHUDTileName(tile, nameCoords)
-        defCoords = (left + 112, top + 28)
-        self.drawHUDTileDef(tile, defCoords)
-        if isinstance(tile, Objective):
-            healthCoords = (left + 112, top + 48)
-            self.drawHUDObjHealth(tile, healthCoords)
-
-    def drawHUDUnitImage(self, unit, coords):
-        image = unit.image
-        self.display.blit(image, coords)
-
-    def drawHUDUnitName(self, unit, coords):
-        nameFont = pygame.font.SysFont('Arial', 24, True)
-        nameText = unit.type
-        name = nameFont.render(nameText, 1, (0, 0, 0))
-        self.display.blit(name, coords)
-
-    def drawHUDUnitAtk(self, unit, coords):
-        atkFont = pygame.font.SysFont('Arial', 18)
-        atkText = "Atk: " + str(unit.attack)
-        atk = atkFont.render(atkText, 1, (0, 0, 0))
-        self.display.blit(atk, coords)
-
-    def drawHUDUnitDef(self, unit, coords):
-        defFont = pygame.font.SysFont('Arial', 18)
-        defText = "Def: " + str(unit.defense)
-        defSurf = defFont.render(defText, 1, (0, 0, 0))
-        self.display.blit(defSurf, coords)
-
-    def drawHUDUnitHealth(self, unit, coords):
-        healthFont = pygame.font.SysFont('Arial', 18)
-        healthText = "HP: " + str(unit.health)
-        health = healthFont.render(healthText, 1, (0, 0, 0))
-        self.display.blit(health, coords)
-
-    def drawUnitInfo(self):
-        left, top = 1024, 512
-        row, col = self.cursorCoords
-        unit = self.unitSpace[row][col]
-        if unit != None:
-            imageCoords = (left + 32, top + 8)
-            self.drawHUDUnitImage(unit, imageCoords)
-            nameCoords = (left + 112, top)
-            self.drawHUDUnitName(unit, nameCoords)
-            atkCoords = (left + 112, top + 28)
-            self.drawHUDUnitAtk(unit, atkCoords)
-            defCoords = (left + 112, top + 48)
-            self.drawHUDUnitDef(unit, defCoords)
-            healthCoords = (left + 112, top + 68)
-            self.drawHUDUnitHealth(unit, healthCoords)
-
-    def drawHUDWait(self, coords):
-        waitFont = pygame.font.SysFont('Arial', 24, True)
-        waitText = "(1) to Wait"
-        wait = waitFont.render(waitText, 1, (0, 0, 0))
-        self.display.blit(wait, coords)
-
-    def drawHUDAttack(self, (left, top), num):
-        coords = (left, top + (24*(num-1)))
-        attackFont = pygame.font.SysFont('Arial', 24, True)
-        attackText = "(%d) to Attack" % num
-        attack = attackFont.render(attackText, 1, (0, 0, 0))
-        self.display.blit(attack, coords)
-
-    def drawHUDCapture(self, (left, top), num):
-        coords = (left, top + (24*(num-1)))
-        captureFont = pygame.font.SysFont('Arial', 24, True)
-        captureText = "(%d) to Capture" % num
-        capture = captureFont.render(captureText, 1, (0, 0, 0))
-        self.display.blit(capture, coords)
-
-    def drawExitContextMenu(self, (left, top), num):
-        coords = (left, top + (24*(num-1)))
-        exitFont = pygame.font.SysFont('Arial', 24, True)
-        exitText = "(x) to Undo Move"
-        exit = exitFont.render(exitText, 1, (0, 0, 0))
-        self.display.blit(exit, coords)
-
-    def drawContextMenu(self):
-        left, top = 1000, 144
-        canAttack = self.contextMenuOptions[0]
-        canCapture = self.contextMenuOptions[1]
-        num = 1
-        self.drawHUDWait((left + 48, top))
-        if canAttack:
-            num += 1
-            self.drawHUDAttack((left + 48, top), num)
-        if canCapture:
-            num += 1
-            self.drawHUDCapture((left + 48, top), num)
-        num += 1
-        self.drawExitContextMenu((left + 48, top), num)
-
-    def drawAtkInstr(self, coords):
-        left, top = coords
-        instrFont = pygame.font.SysFont('Arial', 24, True)
-        instrText1 = "Use left/right arrow"
-        instrText2 = "keys to select target"
-        instrText3 = "(z) Attack"
-        instrText4 = "(x) Back"
-        instr1 = instrFont.render(instrText1, 1, (0, 0, 0))
-        instr2 = instrFont.render(instrText2, 1, (0, 0, 0))
-        instr3 = instrFont.render(instrText3, 1, (0, 0, 0))
-        instr4 = instrFont.render(instrText4, 1, (0, 0, 0))
-        self.display.blit(instr1, (left + 48, top ))
-        self.display.blit(instr2, (left + 48, top + 24))
-        self.display.blit(instr3, (left + 48, top + 48))
-        self.display.blit(instr4, (left + 48, top + 72))
-
-    def drawTarget(self, coords):
-        left, top = coords
-        row, col = self.targetCoords
-        unit = self.unitSpace[row][col]
-        imageCoords = (left + 56, top + 8)
-        self.drawHUDUnitImage(unit, imageCoords)
-        nameCoords = (left + 136, top)
-        self.drawHUDUnitName(unit, nameCoords)
-        atkCoords = (left + 136, top + 28)
-        self.drawHUDUnitAtk(unit, atkCoords)
-        defCoords = (left + 136, top + 48)
-        self.drawHUDUnitDef(unit, defCoords)
-        healthCoords = (left + 136, top + 68)
-        self.drawHUDUnitHealth(unit, healthCoords)
-
-    def drawAttackInstructions(self):
-        left, top = 1000, 144
-        self.drawAtkInstr((left, top))
-        self.drawTarget((left, top + 96))
-
-    def drawTurnText(self, coords):
-        turnFont = pygame.font.SysFont('Tahoma', 64, True)
-        turnText = "%s's Turn" % self.activePlayer.color
-        turn = turnFont.render(turnText, 1, (0, 0, 0))
-        self.display.blit(turn, coords)
-
-    def drawMoneyText(self, coords):
-        left, top = coords
-        moneyFont = pygame.font.SysFont('Arial', 24, True)
-        moneyText1 = "Funds: $%d" % self.activePlayer.funds
-        moneyText2 = "Buildings: %d" % len(self.activePlayer.heldObjectives)
-        moneyText3 = "+$%d per Turn" % (1000 *
-                                        len(self.activePlayer.heldObjectives))
-        money1 = moneyFont.render(moneyText1, 1, (0, 0, 0))
-        money2 = moneyFont.render(moneyText2, 1, (0, 0, 0))
-        money3 = moneyFont.render(moneyText3, 1, (0, 0, 0))
-        self.display.blit(money1, coords)
-        self.display.blit(money2, (left, top + 24))
-        self.display.blit(money3, (left, top + 48))
-
-    def drawPlayerInfo(self):
-        left, top = 0, 0
-        self.drawTurnText((left + 48, top + 24))
-        self.drawMoneyText((1024 + 48, top + 24))
-
-    def drawHUDInstr(self):
-        left, top = 1000, 144
-        text1 = 'Arrow keys to move'
-        text2 = '(z) to select unit'
-        text3 = '(space) to end turn'
-        textFont = pygame.font.SysFont('Arial', 24, True)
-        t1 = textFont.render(text1, 1, (0, 0, 0))
-        t2 = textFont.render(text2, 1, (0, 0, 0))
-        t3 = textFont.render(text3, 1, (0, 0, 0))
-        self.display.blit(t1, (left + 48, top))
-        self.display.blit(t2, (left + 48, top + 24))
-        self.display.blit(t3, (left + 48, top + 48))
-
-    def drawMovementInstr(self):
-        left, top = 1000, 144
-        text1 = 'Arrow keys to move'
-        text2 = '(z) to move unit'
-        text3 = '(x) to undo'
-        textFont = pygame.font.SysFont('Arial', 24, True)
-        t1 = textFont.render(text1, 1, (0, 0, 0))
-        t2 = textFont.render(text2, 1, (0, 0, 0))
-        t3 = textFont.render(text3, 1, (0, 0, 0))
-        self.display.blit(t1, (left + 48, top))
-        self.display.blit(t2, (left + 48, top + 24))
-        self.display.blit(t3, (left + 48, top + 48))
-
-    def drawShop(self):
-        left, top = 1048, 144
-        textFont = pygame.font.SysFont('Arial', 24, True)
-        for option in xrange(6):
-            key = option + 1
-            text = '(%d) %s $%d' % (key, self.shopTypes[key].__name__,
-                                      self.shopCosts[key])
-            tSurf = textFont.render(text, 1, (0, 0, 0))
-            self.display.blit(tSurf, (left, top + (24 * option)))
-        text = '(x) exit'
-        tSurf = textFont.render(text, 1, (0, 0, 0))
-        self.display.blit(tSurf, (left, top + (24 * 6)))
-
-    def drawGameOver(self):
-        left, top = 1000, 144
-        text1 = 'Game Over!'
-        text2 = '%s wins!!!' % self.winner.color
-        text3 = 'Press any key to exit'
-        textFont = pygame.font.SysFont('Arial', 24, True)
-        t1 = textFont.render(text1, 1, (0, 0, 0))
-        t2 = textFont.render(text2, 1, (0, 0, 0))
-        t3 = textFont.render(text3, 1, (0, 0, 0))
-        self.display.blit(t1, (left + 48, top))
-        self.display.blit(t2, (left + 48, top + 24))
-        self.display.blit(t3, (left + 48, top + 48))
-
-    def drawHUD(self):
-        self.drawBackground()
-        self.drawTerrainInfo()
-        self.drawUnitInfo()
-        self.drawPlayerInfo()
-        if self.gameIsOver:
-            self.drawGameOver()
-        elif self.shopIsOpen:
-            self.drawShop()
-        elif self.inAttackMode:
-            self.drawAttackInstructions()
-        elif self.contextMenuIsOpen:
-            self.drawContextMenu()
-        elif self.unitIsSelected:
-            self.drawMovementInstr()
-        else:
-            self.drawHUDInstr()
-        pygame.display.flip()
 
 
     def getGameState(self):
@@ -1233,13 +778,13 @@ class Battle(PygameBaseClass):
         }
         GameState = {}
         GameState['Terrain'] = []
-        map = self.map.contents;
+        map = self.map.contents
         print map
-        units = self.unitSpace;
+        units = self.unitSpace
         # Terrain
         for i in range(len(map)):
             for j in range(len(map[i])):
-                print map[i];
+                print map[i]
                 terrainType = map[i][j] if (int == type(map[i][j])) else  map[i][j][1]
                 GameState['Terrain'].append({'x': j, 'y': i, 'Terrain_type': terrainType})
         # Troops

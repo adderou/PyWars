@@ -4,11 +4,6 @@
 
 # Sprites from Advance Wars (Intelligent Systems, Nintendo)
 
-import os
-import pygame
-from pygame.locals import *
-from pygameBaseClass import PygameBaseClass
-
 class Tile():
     """
     Represents a single tile
@@ -101,26 +96,10 @@ class Tile():
     } # Maps cardinal directions surrounding water to the corr. sprite file
 
     def __init__(self, terrainType, surroundings):
-        super(Tile, self).__init__()
         self.terrainType = terrainType
         self.surroundings = surroundings
-        self.image = self.getImage()
         self.name = self.terrainTypeNames[terrainType]
-        self.staticImage = self.getStaticImage()
-        self.height = self.image.get_height()
-        self.overflow = self.height - Tile.size
         self.defense = Tile.defenseValues[terrainType]
-
-    def getBridgeImage(self, cardinalsIdentifier):
-        cardinalsIdentifier = self.getCardinalsIdentifier(5)
-        n = int(cardinalsIdentifier[0])
-        e = int(cardinalsIdentifier[1])
-        s = int(cardinalsIdentifier[2])
-        w = int(cardinalsIdentifier[3])
-        if (e == 1 or w == 1) and not (n == 1 or s == 1):
-            return 'BridgeVert.png'
-        else:
-            return 'BridgeHoriz.png'
 
     def getCardinalsIdentifier(self, terrType):
         neswIndex = [1, 4, 6, 3] # Indices for cardinal directions
@@ -133,34 +112,6 @@ class Tile():
                 cardinalsIdentifier += '0'
         return cardinalsIdentifier
 
-    def getDynamicImage(self, terrType):
-        """Get the appropriate filename for the terrain based on the
-        surroundings"""
-        cardinalsIdentifier = self.getCardinalsIdentifier(terrType)
-        if terrType == 0:
-            return self.waterFiles[cardinalsIdentifier]
-        elif terrType == 2:
-            return self.roadFiles[cardinalsIdentifier]
-        elif terrType == 5:
-            return self.riverFiles[cardinalsIdentifier]
-        elif terrType == 6:
-            return self.getBridgeImage(cardinalsIdentifier)
-
-    def getImage(self):
-        """Gets the appropriate sprite for this tile"""
-        if self.terrainType in Tile.dynamicSpriteTypes:
-            filename = self.getDynamicImage(self.terrainType)
-        else:
-            filename = Tile.staticSpriteFiles[self.terrainType]
-        path = os.path.join('tiles', filename)
-        image = pygame.image.load(path)
-        return image
-
-    def getStaticImage(self):
-        filename = Tile.staticSpriteFiles[self.terrainType]
-        path = os.path.join('tiles', filename)
-        image = pygame.image.load(path)
-        return image
 
 class Objective(Tile):
     teams = {
@@ -189,24 +140,13 @@ class Objective(Tile):
         self.type = Objective.types[self.typeNum]
         self.name = self.type
         self.health = Objective.baseHealth
-        self.image = self.getImage()
-        self.staticImage = self.image
-        self.height = self.image.get_height()
-        self.overflow = self.height - Tile.size
         self.defense = Objective.defenseValues[self.typeNum]
-
-    def getImage(self):
-        filename = self.team + self.type + '.png'
-        path = os.path.join('tiles', filename)
-        image = pygame.image.load(path)
-        return image
         
-class Map(pygame.sprite.Sprite):
+class Map():
     """
     Represents an in-game map
     """
     def __init__(self, contents=None):
-        super(Map, self).__init__()
         if type(contents) == tuple:
             contents = self.blankMap(contents)
         else:
@@ -218,11 +158,8 @@ class Map(pygame.sprite.Sprite):
         self.contents = contents
         self.map = self.getMap(contents)
         self.defense = self.getDefense()
-        self.image = self.getImage()
         self.objectives = self.getObjectives()
 
-    def refreshImage(self):
-        self.image = self.getImage()
 
     def getObjectives(self):
         objectives = []
@@ -280,7 +217,6 @@ class Map(pygame.sprite.Sprite):
                 self.deleteHQ(terrType[0])
             self.map[row][col] = Objective(terrType)
             self.updateSurroundings(coords)
-        self.refreshImage()
 
     def getSurroundingTiles(self, row, col):
         """Get a list of all of the tiles surrounding (row, col)"""
@@ -326,19 +262,6 @@ class Map(pygame.sprite.Sprite):
                     self.map[newRow][newCol] = Tile(terrType,
                         self.getSurroundingTiles(newRow, newCol))
 
-    def getImage(self):
-        """Creates a surface with the appearance of the map"""
-        image = pygame.Surface((self.width, self.height))
-        for row in xrange(self.rows):
-            for col in xrange(self.cols):
-                tile = self.map[row][col]
-                top = row * Tile.size - tile.overflow
-                left = col * Tile.size
-                width = height = Tile.size
-                dest = (left, top, width, height)
-                image.blit(tile.image, dest)
-        return image
-
     @staticmethod
     def loadContents(contentString):
         rows = contentString.splitlines()
@@ -356,27 +279,5 @@ class Map(pygame.sprite.Sprite):
                     mapRow.append(terrType)
             map.append(mapRow)
         return map
-
-# class MapTest(PygameBaseClass):
-#     """A 15x10 map to debug the map and tile classes"""
-#     def __init__(self):
-#         super(MapTest, self).__init__('Map Test',15*64,10*64)
-#
-#     def initGame(self):
-#         testMap = [[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-#                    [0,0,(0,2),(0,1),1,1,1,1,0,0,0,0,0,0,0],
-#                    [0,(0,0),2,2,3,3,3,1,1,1,1,0,0,0,0],
-#                    [0,1,1,2,1,3,3,3,3,1,1,1,1,0,0],
-#                    [0,1,1,2,1,1,1,3,3,3,1,1,1,0,0],
-#                    [0,0,1,2,2,2,2,2,2,2,2,2,1,0,0],
-#                    [0,0,1,1,1,3,3,3,1,2,0,2,1,1,0],
-#                    [0,0,1,1,4,4,3,1,1,2,2,2,2,(1,0),0],
-#                    [0,0,0,1,1,1,1,1,1,1,1,(1,1),(1,2),0,0],
-#                    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]]
-#         a = Map((15,10), testMap)
-#         self.screen.blit(a.image, (0,0))
-#
-# if __name__ == '__main__':
-#     MapTest().run()
 
 
