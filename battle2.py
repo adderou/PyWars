@@ -847,6 +847,19 @@ class Battle():
         # Devolver lista de movimientos posibles
         return justMove,moveAttack
 
+    #Seteamos ahora las tropas del json en el modelo
+    def setGameState(self,gameState):
+        #Delete Unitspace
+        self.unitSpace = self.getUnitSpace()
+        initialUnits = []
+        #Para cada equipo
+        for i in range(len(gameState['Troops'])):
+            for j in range(len(gameState['Troops'][i])):
+                currentTroop = gameState['Troops'][i][j]
+                item = (i, currentTroop['Troop'], (currentTroop['x'],currentTroop['y']))
+                initialUnits.append(item)
+        self.placeInitialUnits(initialUnits)
+
 # testMapPath = os.path.join('maps', 'gauntlet.tpm')
 # a = Battle.fromFile(testMapPath)
 # a.run()
