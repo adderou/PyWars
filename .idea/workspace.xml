@@ -3,7 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="1665a526-bde9-4903-8b7c-a62e006d1d19" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/battle.py" afterPath="$PROJECT_DIR$/battle.py" />
     </list>
     <ignored path="PyWars.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -715,7 +714,14 @@
       <option name="project" value="LOCAL" />
       <updated>1464052648671</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="Arreglados mapas random">
+      <created>1464054160384</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1464054160384</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -764,7 +770,8 @@
     <MESSAGE value="creados battle2, map2, units2 (versiones sin pygame)" />
     <MESSAGE value="creada setgameState, que copia el estado de un json a el modelo del juego (Necesario para poder calcular vecindad al momento de cachar a quien atacar)" />
     <MESSAGE value="Arreglada clase map" />
-    <option name="LAST_COMMIT_MESSAGE" value="Arreglada clase map" />
+    <MESSAGE value="Arreglados mapas random" />
+    <option name="LAST_COMMIT_MESSAGE" value="Arreglados mapas random" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
