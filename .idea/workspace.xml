@@ -4,8 +4,6 @@
     <list default="true" id="1665a526-bde9-4903-8b7c-a62e006d1d19" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/battle.py" afterPath="$PROJECT_DIR$/battle.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/battle2.py" afterPath="$PROJECT_DIR$/battle2.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/map.py" afterPath="$PROJECT_DIR$/map.py" />
     </list>
     <ignored path="PyWars.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -20,7 +18,7 @@
   <component name="ChangesViewManager" flattened_view="true" show_ignored="false" />
   <component name="CoverageDataManager">
     <SUITE FILE_PATH="coverage/PyWars$CosadelAndres.coverage" NAME="CosadelAndres Coverage Results" MODIFIED="1464042965902" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/PyWars$PyWars.coverage" NAME="PyWars Coverage Results" MODIFIED="1464044273450" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/PyWars$PyWars.coverage" NAME="PyWars Coverage Results" MODIFIED="1464054122977" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
   <component name="CreatePatchCommitExecutor">
     <option name="PATCH_PATH" value="" />
@@ -34,8 +32,8 @@
       <file leaf-file-name="battle.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/battle.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="7980">
-              <caret line="538" column="27" selection-start-line="538" selection-start-column="27" selection-end-line="538" selection-end-column="27" />
+            <state relative-caret-position="287">
+              <caret line="151" column="30" selection-start-line="151" selection-start-column="30" selection-end-line="151" selection-end-column="30" />
               <folding />
             </state>
           </provider>
@@ -44,7 +42,7 @@
       <file leaf-file-name="battle2.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/battle2.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="12870">
+            <state relative-caret-position="10395">
               <caret line="861" column="84" selection-start-line="861" selection-start-column="84" selection-end-line="861" selection-end-column="84" />
               <folding>
                 <element signature="e#123#134#0" expanded="true" />
@@ -76,9 +74,15 @@
       <file leaf-file-name="utils.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/utils.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="7095">
+            <state relative-caret-position="6960">
               <caret line="487" column="8" selection-start-line="487" selection-start-column="8" selection-end-line="487" selection-end-column="8" />
-              <folding />
+              <folding>
+                <marker date="1464052583855" expanded="true" signature="1811:1949" placeholder="SELECT * FRO... state" />
+                <marker date="1464052583855" expanded="true" signature="4358:4442" placeholder="INSERT INTO `game`... " />
+                <marker date="1464052583855" expanded="true" signature="4630:4715" placeholder="UPDATE `stat... " />
+                <marker date="1464052583855" expanded="true" signature="5104:5276" placeholder="INSERT INTO `state`... " />
+                <marker date="1464052583855" expanded="true" signature="6590:6743" placeholder="INSERT INTO `cell_states`... " />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -86,7 +90,7 @@
       <file leaf-file-name="units.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/units.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="540">
+            <state relative-caret-position="-135">
               <caret line="36" column="31" selection-start-line="36" selection-start-column="11" selection-end-line="36" selection-end-column="31" />
               <folding>
                 <element signature="e#126#139#0" expanded="true" />
@@ -165,10 +169,10 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="-2" />
-    <option name="y" value="-20" />
-    <option name="width" value="1370" />
-    <option name="height" value="790" />
+    <option name="x" value="1" />
+    <option name="y" value="-16" />
+    <option name="width" value="1364" />
+    <option name="height" value="782" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <OptionsSetting value="true" id="Add" />
@@ -704,20 +708,27 @@
       <option name="project" value="LOCAL" />
       <updated>1464040878952</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="Arreglada clase map">
+      <created>1464052648671</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1464052648671</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-2" y="-20" width="1370" height="790" extended-state="0" />
-    <editor active="false" />
+    <frame x="1" y="-16" width="1364" height="782" extended-state="0" />
+    <editor active="true" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.1918429" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.19271624" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.34615386" sideWeight="0.4176737" order="13" side_tool="true" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.33083832" sideWeight="0.5455235" order="13" side_tool="true" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3294702" sideWeight="0.4939577" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.34615386" sideWeight="0.5823263" order="10" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32692307" sideWeight="0.45694864" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.34615386" sideWeight="0.5823263" order="10" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.33083832" sideWeight="0.45447648" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="12" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
@@ -752,7 +763,8 @@
     <MESSAGE value="Funcion nueva: GetPossibleMoves" />
     <MESSAGE value="creados battle2, map2, units2 (versiones sin pygame)" />
     <MESSAGE value="creada setgameState, que copia el estado de un json a el modelo del juego (Necesario para poder calcular vecindad al momento de cachar a quien atacar)" />
-    <option name="LAST_COMMIT_MESSAGE" value="creada setgameState, que copia el estado de un json a el modelo del juego (Necesario para poder calcular vecindad al momento de cachar a quien atacar)" />
+    <MESSAGE value="Arreglada clase map" />
+    <option name="LAST_COMMIT_MESSAGE" value="Arreglada clase map" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -815,7 +827,13 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="450">
           <caret line="41" column="31" selection-start-line="41" selection-start-column="31" selection-end-line="41" selection-end-column="31" />
-          <folding />
+          <folding>
+            <marker date="1464052583855" expanded="true" signature="1811:1949" placeholder="SELECT * FRO... state" />
+            <marker date="1464052583855" expanded="true" signature="4358:4442" placeholder="INSERT INTO `game`... " />
+            <marker date="1464052583855" expanded="true" signature="4630:4715" placeholder="UPDATE `stat... " />
+            <marker date="1464052583855" expanded="true" signature="5104:5276" placeholder="INSERT INTO `state`... " />
+            <marker date="1464052583855" expanded="true" signature="6590:6743" placeholder="INSERT INTO `cell_states`... " />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -1081,16 +1099,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/units.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="540">
-          <caret line="36" column="31" selection-start-line="36" selection-start-column="11" selection-end-line="36" selection-end-column="31" />
-          <folding>
-            <element signature="e#126#139#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/units2.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -1117,14 +1125,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/utils.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="7095">
-          <caret line="487" column="8" selection-start-line="487" selection-start-column="8" selection-end-line="487" selection-end-column="8" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/mainMenu.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-1665">
@@ -1141,9 +1141,33 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/utils.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="6960">
+          <caret line="487" column="8" selection-start-line="487" selection-start-column="8" selection-end-line="487" selection-end-column="8" />
+          <folding>
+            <marker date="1464052583855" expanded="true" signature="1811:1949" placeholder="SELECT * FRO... state" />
+            <marker date="1464052583855" expanded="true" signature="4358:4442" placeholder="INSERT INTO `game`... " />
+            <marker date="1464052583855" expanded="true" signature="4630:4715" placeholder="UPDATE `stat... " />
+            <marker date="1464052583855" expanded="true" signature="5104:5276" placeholder="INSERT INTO `state`... " />
+            <marker date="1464052583855" expanded="true" signature="6590:6743" placeholder="INSERT INTO `cell_states`... " />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/units.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-135">
+          <caret line="36" column="31" selection-start-line="36" selection-start-column="11" selection-end-line="36" selection-end-column="31" />
+          <folding>
+            <element signature="e#126#139#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/battle2.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="12870">
+        <state relative-caret-position="10395">
           <caret line="861" column="84" selection-start-line="861" selection-start-column="84" selection-end-line="861" selection-end-column="84" />
           <folding>
             <element signature="e#123#134#0" expanded="true" />
@@ -1153,8 +1177,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/battle.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="7980">
-          <caret line="538" column="27" selection-start-line="538" selection-start-column="27" selection-end-line="538" selection-end-column="27" />
+        <state relative-caret-position="287">
+          <caret line="151" column="30" selection-start-line="151" selection-start-column="30" selection-end-line="151" selection-end-column="30" />
           <folding />
         </state>
       </provider>
