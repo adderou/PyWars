@@ -859,7 +859,7 @@ class Battle():
         for i in range(len(gameState['Troops'])):
             for j in range(len(gameState['Troops'][i])):
                 currentTroop = gameState['Troops'][i][j]
-                item = (i, currentTroop['Troop'], (currentTroop['x'],currentTroop['y']))
+                item = (i, currentTroop['Troop'], (currentTroop['y'],currentTroop['x']))
                 initialUnits.append(item)
         self.placeInitialUnits(initialUnits)
 

@@ -9,7 +9,7 @@ import pygame
 from pygame.locals import *
 from pygameBaseClass import PygameBaseClass
 
-class Tile():
+class Tile(pygame.sprite.Sprite):
     """
     Represents a single tile
 
@@ -251,7 +251,7 @@ class Map(pygame.sprite.Sprite):
                 terrainType = contents[row][col]
                 if type(terrainType) == int:
                     tile = Tile(terrainType,
-                                self.getSurroundingTiles(row, col))
+                        self.getSurroundingTiles(row, col))
                 else:
                     tile = Objective(terrainType)
                 thisRow += [tile]

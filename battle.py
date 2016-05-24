@@ -177,6 +177,8 @@ class Battle(PygameBaseClass):
             used.append((x, y))
 
         return map
+
+
     @staticmethod
     def generateUnits(map):
         unitString = ""
@@ -532,7 +534,7 @@ class Battle(PygameBaseClass):
         adjacentDir = [(1, 0), (-1, 0), (0, 1), (0, -1)]
         for (dRow, dCol) in adjacentDir:
             newRow, newCol = cRow + dRow, cCol + dCol
-            if ((0 <= newRow <= self.rows and 0 <= newCol < self.cols) and
+            if ((0 <= newRow < self.rows and 0 <= newCol < self.cols) and
                 self.isBlocked((newRow, newCol))):
                 return True
         return False
