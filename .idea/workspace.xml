@@ -3,6 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="1665a526-bde9-4903-8b7c-a62e006d1d19" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/battle2.py" afterPath="$PROJECT_DIR$/battle2.py" />
     </list>
     <ignored path="PyWars.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -28,21 +29,21 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="battle.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="battle.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/battle.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="287">
-              <caret line="151" column="30" selection-start-line="151" selection-start-column="30" selection-end-line="151" selection-end-column="30" />
+            <state relative-caret-position="120">
+              <caret line="119" column="0" selection-start-line="119" selection-start-column="0" selection-end-line="185" selection-end-column="18" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="battle2.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="battle2.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/battle2.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="10395">
-              <caret line="861" column="84" selection-start-line="861" selection-start-column="84" selection-end-line="861" selection-end-column="84" />
+            <state relative-caret-position="362">
+              <caret line="176" column="18" selection-start-line="176" selection-start-column="18" selection-end-line="176" selection-end-column="18" />
               <folding>
                 <element signature="e#123#134#0" expanded="true" />
               </folding>
@@ -155,9 +156,9 @@
         <option value="$PROJECT_DIR$/units.py" />
         <option value="$PROJECT_DIR$/units2.py" />
         <option value="$PROJECT_DIR$/map2.py" />
-        <option value="$PROJECT_DIR$/battle2.py" />
         <option value="$PROJECT_DIR$/map.py" />
         <option value="$PROJECT_DIR$/battle.py" />
+        <option value="$PROJECT_DIR$/battle2.py" />
       </list>
     </option>
   </component>
@@ -721,7 +722,14 @@
       <option name="project" value="LOCAL" />
       <updated>1464054160384</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="Arreglados mapas random">
+      <created>1464054182561</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1464054182561</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -1172,21 +1180,21 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/battle2.py">
+    <entry file="file://$PROJECT_DIR$/battle.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="10395">
-          <caret line="861" column="84" selection-start-line="861" selection-start-column="84" selection-end-line="861" selection-end-column="84" />
-          <folding>
-            <element signature="e#123#134#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="120">
+          <caret line="119" column="0" selection-start-line="119" selection-start-column="0" selection-end-line="185" selection-end-column="18" />
+          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/battle.py">
+    <entry file="file://$PROJECT_DIR$/battle2.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="287">
-          <caret line="151" column="30" selection-start-line="151" selection-start-column="30" selection-end-line="151" selection-end-column="30" />
-          <folding />
+        <state relative-caret-position="362">
+          <caret line="176" column="18" selection-start-line="176" selection-start-column="18" selection-end-line="176" selection-end-column="18" />
+          <folding>
+            <element signature="e#123#134#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

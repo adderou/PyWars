@@ -110,6 +110,9 @@ class Battle():
 
     @staticmethod
     def populateMap(map,used):
+        #hqs
+        used.append((2,2))
+        used.append((7,13))
         #Rivers
         x = random.randint(0, 9)
         y = random.randint(0, 15)
@@ -118,11 +121,12 @@ class Battle():
             possible = [(max(0,x-d),y),(min(9,x+d),y),(x,max(0,y-d)),(x,min(15,y+d))]
             x,y = possible[random.randint(0,3)]
             counter = 0
-            while ((x,y) not in used) and (x,y) in [(2,2), (7,13)] and counter<5:
+            while ((x,y) in used) and counter<5:
                 x, y = possible[random.randint(0, 3)]
                 counter +=1
-            map[x][y] = "5"
-            used.append((x,y))
+            if (not(x,y) in used):
+                map[x][y] = "5"
+                used.append((x,y))
 
         #mountains
         x = random.randint(0, 9)
@@ -132,11 +136,12 @@ class Battle():
             possible = [(max(0,x-d),y),(min(9,x+d),y),(x,max(0,y-d)),(x,min(15,y+d))]
             x,y = possible[random.randint(0,3)]
             counter = 0
-            while ((x,y) not in used) and (x,y) in [(2,2), (7,13)] and counter<5:
+            while ((x,y) not in used)  and counter<5:
                 x, y = possible[random.randint(0, 3)]
                 counter +=1
-            map[x][y] = "4"
-            used.append((x,y))
+            if (not(x,y) in used):
+                map[x][y] = "4"
+                used.append((x,y))
 
         #Forests
 
@@ -147,11 +152,12 @@ class Battle():
             possible = [(max(0, x - d), y), (min(9, x + d), y), (x, max(0, y - d)), (x, min(15, y + d))]
             x, y = possible[random.randint(0, 3)]
             counter = 0
-            while ((x, y) not in used) and (x, y) in [(2, 2), (7, 13)] and counter < 5:
+            while ((x, y) not in used) and counter < 5:
                 x, y = possible[random.randint(0, 3)]
                 counter += 1
-            map[x][y] = "3"
-            used.append((x, y))
+            if (not(x,y) in used):
+                map[x][y] = "3"
+                used.append((x,y))
 
         #roads
         x = random.randint(0, 9)
@@ -161,13 +167,16 @@ class Battle():
             possible = [(max(0, x - d), y), (min(9, x + d), y), (x, max(0, y - d)), (x, min(15, y + d))]
             x, y = possible[random.randint(0, 3)]
             counter = 0
-            while ((x, y) not in used) and (x, y) in [(2, 2), (7, 13)] and counter < 5:
+            while ((x, y) not in used) and counter < 5:
                 x, y = possible[random.randint(0, 3)]
                 counter += 1
-            map[x][y] = "2"
-            used.append((x, y))
+            if (not(x,y) in used):
+                map[x][y] = "2"
+                used.append((x,y))
 
         return map
+
+
     @staticmethod
     def generateUnits(map):
         unitString = ""
