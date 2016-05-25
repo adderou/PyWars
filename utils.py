@@ -2,7 +2,8 @@
 # X hacia abajo Y hacia la derecha centrado en la esquina sup izq
 from copy import copy
 from copy import deepcopy
-
+from skimage import data, color, io, img_as_float
+from skimage.color import rgb2hsv,hsv2rgb
 import units
 from map import Tile
 import MySQLdb
@@ -406,6 +407,8 @@ def gameLoop(baseBattle,initialState,funStateAction,store=True,randomProb=0.5):
     game = []
     state = initialState
     baseBattle.setGameState(state)
+    #ASEGURATE QUE EL EQUIPO INICIAL SEA RED
+    baseBattle.activePlayer = baseBattle.teams[0]
     nextState = None
 
     #Is red or blue turn?
@@ -416,6 +419,7 @@ def gameLoop(baseBattle,initialState,funStateAction,store=True,randomProb=0.5):
         for troop in state['Troops'][activeTeam]:
             heapAction = [] #The python heap keep TUPLES (value,action) sorted by value like a heap
             accionesValidas = baseBattle.getPossibleMoves((troop['x'], troop['y']))
+
 
             #Random action or evaluation ?
             randomNumber = random.random()
@@ -433,13 +437,16 @@ def gameLoop(baseBattle,initialState,funStateAction,store=True,randomProb=0.5):
 
             #place if next state is win,lose or non terminal
             state['next_terminal'] = checkTerminal(nextState,activeTeam)
+            #set Action to state
+            state['Action'] = bestAction
+
+            showTransition(state)
 
             #append transition to game
             game.append(state)
             state = nextState
             baseBattle.setGameState(state)
 
-            showTransition(state)
 
             # maybe we win but we havent move all
             if checkTerminal(state, activeTeam) != 0:
@@ -530,29 +537,65 @@ def showTransition(transition):
             y = troop["x"] * tileDim
 
             mask = np.zeros(base.shape)
-            mask[y:y + img.shape[0], x:x + img.shape[1]] = img
+            mask[y:y + tileDim, x:x + tileDim] = img
             ms = np.bool_(mask[:, :, 3])
             base[ms] = mask[ms]
 
             mask = np.zeros(base.shape)
-            mask[y:y + hpImg.shape[0], x:x + hpImg.shape[1]] = hpImg
+            mask[y:y + tileDim, x:x + tileDim] = hpImg
             ms = np.bool_(mask[:,:,3])
             base[ms] = mask[ms]
 
             if not canMove:
                 mask = np.zeros(base.shape)
-                mask[y:y + wImg.shape[0], x:x + wImg.shape[1]] = wImg
+                mask[y:y + tileDim, x:x + tileDim] = wImg
                 ms = np.bool_(mask[:, :, 3])
                 base[ms] = mask[ms]
 
-    #TODO add action representation
+    if (transition.has_key('Action')):
+        actionMask = np.zeros((base.shape[0],base.shape[1],3))
 
+        if (transition['Action']['action_type']):
+            x = transition['Action']["Ya"] * tileDim
+            y = transition['Action']["Xa"] * tileDim
+            actionMask[y:y + tileDim, x:x + tileDim] = [1,0,0]
+        x = transition['Action']["Yf"] * tileDim
+        y = transition['Action']["Xf"] * tileDim
+        actionMask[y:y + tileDim, x:x + tileDim] = [0,0,1]
+        x = transition['Action']["Yi"] * tileDim
+        y = transition['Action']["Xi"] * tileDim
+        actionMask[y:y + tileDim, x:x + tileDim] = [0,1,0]
+        alpha = 0.6
+
+        temp = rgb2hsv(base[:,:,:3])
+        color_mask_hsv = rgb2hsv(actionMask)
+        temp[..., 0] = color_mask_hsv[..., 0]
+        temp[..., 1] = color_mask_hsv[..., 1] * alpha
+
+        temp = hsv2rgb(temp)
+
+
+        if (transition['Action']['action_type']):
+            x = transition['Action']["Ya"] * tileDim
+            y = transition['Action']["Xa"] * tileDim
+            base[y:y + tileDim, x:x + tileDim,:3] = temp[y:y + tileDim, x:x + tileDim]
+
+        x = transition['Action']["Yf"] * tileDim
+        y = transition['Action']["Xf"] * tileDim
+        base[y:y + tileDim, x:x + tileDim,:3] = temp[y:y + tileDim, x:x + tileDim]
+
+        x = transition['Action']["Yi"] * tileDim
+        y = transition['Action']["Xi"] * tileDim
+        base[y:y + tileDim, x:x + tileDim,:3] = temp[y:y + tileDim, x:x + tileDim]
+
+        plt.suptitle(
+            "Xi, Yi : " + str((transition['Action']["Xi"], transition['Action']["Yi"])) + " " +
+            "Xf, Yf : " + str((transition['Action']["Xf"], transition['Action']["Yf"])) + " " +
+            "Type : " + str(transition['Action']["action_type"]) + " "
+            "Xa, Ya : " + str((transition['Action']["Xa"], transition['Action']["Ya"])) + " ")
     plt.imshow(base)
     plt.show()
 
-
-
-    pass
 
 
 if __name__ == '__main__':

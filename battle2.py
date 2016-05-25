@@ -420,31 +420,37 @@ class Battle():
         activeTeam = self.activePlayer.color
         return (unit != None) and (unit.team != activeTeam)
 
-    def movementRangeHelperFunction(self, map, unit, coords, movementPoints):
+
+    def isBlockeForMe(self, uniCords, coords):
+        """Return true if (row, col) is occupied by any Troop that is not the unit provided"""
+        row, col = coords
+        unitX,unitY = uniCords
+        unit = self.unitSpace[row][col]
+
+        return not((unit == None) or ((unitX == row) and (unitY == col)))
+
+    def movementRangeHelperFunction(self, map, unit, coords, movementPoints,unitCords):
         """Do a weighted floodfill method to populate the movement range"""
         row, col = coords
         if not (0 <= row < self.rows and 0 <= col < self.cols): return
         terrainType = map[row][col].terrainType
         movementCost = unit.movementCost[terrainType]
         pointsAfterMove = movementPoints - movementCost
-        if (pointsAfterMove > 0 and movementCost != -1 and
-            not self.isBlocked(coords)):
+        if (pointsAfterMove > 0) and (movementCost != -1) and (not self.isBlockeForMe(unitCords, coords)):
             self.movementRange.add(coords)
             for newCoords in self.getNextTiles(map, unit, coords):
-                self.movementRangeHelperFunction(map, unit,
-                                                 newCoords, pointsAfterMove)
+                self.movementRangeHelperFunction(map, unit,newCoords, pointsAfterMove,unitCords)
 
     def getMovementRangeOf(self, coords):
         """Calculate movement range from the current selection"""
         map = self.map.map
         row, col = coords
+        unitCords = (row, col)
         unit = self.unitSpace[row][col]
         movementPoints = unit.movementPoints
         self.movementRange.add(coords)
         for newCoords in self.getNextTiles(map, unit, coords):
-                    self.movementRangeHelperFunction(map, unit,
-                                                     newCoords,
-                                                     movementPoints)
+            self.movementRangeHelperFunction(map, unit,newCoords,movementPoints,unitCords)
 
     def getMovementRange(self):
         self.getMovementRangeOf(self.selection)
@@ -473,8 +479,7 @@ class Battle():
         adjacentDir = [(1, 0), (-1, 0), (0, 1), (0, -1)]
         for (dRow, dCol) in adjacentDir:
             newRow, newCol = cRow + dRow, cCol + dCol
-            if ((0 <= newRow < self.rows and 0 <= newCol < self.cols) and
-                self.isBlocked((newRow, newCol))):
+            if ((0 <= newRow < self.rows and 0 <= newCol < self.cols) and self.isBlocked((newRow, newCol))):
                 return True
         return False
 
@@ -792,12 +797,12 @@ class Battle():
         GameState = {}
         GameState['Terrain'] = []
         map = self.map.contents
-        print map
+        # print map
         units = self.unitSpace
         # Terrain
         for i in range(len(map)):
             for j in range(len(map[i])):
-                print map[i]
+                # print map[i]
                 terrainType = map[i][j] if (int == type(map[i][j])) else  map[i][j][1]
                 GameState['Terrain'].append({'x': i, 'y': j, 'Terrain_type': terrainType})
         # Troops
@@ -844,23 +849,38 @@ class Battle():
                 self.getTargetsIn(mov)
             for coords in self.targets:
                 xa,ya = coords
-                taxicabDistance = abs(yi - ya) + abs(xi - xa)
+                taxicabDistance = abs(yf - ya) + abs(xf - xa)
                 # Si hay algun enemigo en ella, agregar a la lista como movimiento
-                if self.canAttack(unit,coords,taxicabDistance):
-                    entry = {}
-                    entry['Xi'] = xi
-                    entry['Yi'] = yi
-                    entry['Xf'] = xf
-                    entry['Yf'] = yf
-                    entry['Xa'] = xa
-                    entry['Ya'] = ya
-                    entry['action_type'] = 1
-                    moves.append(entry)
+                #OJO OJO OJO AQUI QUITE COMPROBACION CANATTACK
+                # if self.canAttack(unit,coords,taxicabDistance):
+                entry = {}
+                entry['Xi'] = xi
+                entry['Yi'] = yi
+                entry['Xf'] = xf
+                entry['Yf'] = yf
+                entry['Xa'] = xa
+                entry['Ya'] = ya
+                entry['action_type'] = 1
+                moves.append(entry)
+
+        self.targets = []
+        self.clearMovementRange()
         # Devolver lista de movimientos posibles
         return moves
 
     #Seteamos ahora las tropas del json en el modelo
     def setGameState(self,gameState):
+
+        #The unitCode is different from the shopCode
+        convertType = {
+            1: 1,
+            2: 2,
+            6: 3,
+            3: 4,
+            4: 5,
+            5: 6
+        }
+
         #Delete Unitspace
         self.unitSpace = self.getUnitSpace()
         initialUnits = []
@@ -868,7 +888,7 @@ class Battle():
         for i in range(len(gameState['Troops'])):
             for j in range(len(gameState['Troops'][i])):
                 currentTroop = gameState['Troops'][i][j]
-                item = (i, currentTroop['Troop'], (currentTroop['y'],currentTroop['x']))
+                item = (i, convertType[currentTroop['Troop']], (currentTroop['x'],currentTroop['y']))
                 initialUnits.append(item)
         self.placeInitialUnits(initialUnits)
 
