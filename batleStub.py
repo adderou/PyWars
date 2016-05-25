@@ -24,7 +24,7 @@ class Team():
         self.camBottom = camRect[3]
 
 
-class Battle():
+class virtualBattle():
     """Main gametype"""
 
     shopTypes = {
@@ -71,20 +71,20 @@ class Battle():
         initialFunds = int(saveContents[2])
         unitString = saveContents[3]
         map = mapString
-        units = Battle.loadUnits(unitString)
-        return Battle(map, numPlayers, initialFunds, units)
+        units = virtualBattle.loadUnits(unitString)
+        return virtualBattle(map, numPlayers, initialFunds, units)
 
 
     @staticmethod
     def randomMap():
-        baseMap = Battle.generateRandomBaseMap()
+        baseMap = virtualBattle.generateRandomBaseMap()
         numPlayers = 2
         initialFunds = 0
-        unitString, used = Battle.generateUnits(baseMap)
-        finalMap = Battle.populateMap(baseMap,used)
-        map = Battle.generateMapString(finalMap)
-        units = Battle.loadUnits(unitString)
-        return Battle(map, numPlayers, initialFunds, units)
+        unitString, used = virtualBattle.generateUnits(baseMap)
+        finalMap = virtualBattle.populateMap(baseMap, used)
+        map = virtualBattle.generateMapString(finalMap)
+        units = virtualBattle.loadUnits(unitString)
+        return virtualBattle(map, numPlayers, initialFunds, units)
 
     @staticmethod
     def generateRandomBaseMap():
@@ -291,7 +291,7 @@ class Battle():
         """Add the initial units to the unit space"""
         for item in initialUnits:
             teamNum, typeNum, coords = item
-            type = Battle.shopTypes[typeNum]
+            type = virtualBattle.shopTypes[typeNum]
             team = self.teams[teamNum]
             row, col = coords
             unit = type(teamNum)
@@ -761,10 +761,10 @@ class Battle():
             self.shopIsOpen = False
         elif keyName in '123456':
             num = int(keyName)
-            cost = Battle.shopCosts[num]
+            cost = virtualBattle.shopCosts[num]
             if cost <= self.activePlayer.funds:
                 self.activePlayer.funds -= cost
-                type = Battle.shopTypes[num]
+                type = virtualBattle.shopTypes[num]
                 team = self.activePlayer.teamNumber
                 self.placeUnit(team, type, self.shopCoords)
                 row, col = self.shopCoords

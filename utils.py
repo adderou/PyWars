@@ -402,7 +402,7 @@ def gameLoop(baseBattle,initialState,funStateAction,store=True,randomProb=0.5):
 
     #just to avoid infinite loops
     maxIter = 100
-
+    # print "bla"
     #get initial game state
     game = []
     state = initialState
