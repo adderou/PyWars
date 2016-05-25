@@ -18,7 +18,7 @@ import pylab as plt
 import random
 
 #Convencciones EL TROOPS[0] ES BLUE Y EL TROOPS[1] ES RED
-from battle2 import Battle
+from batleStub import virtualBattle
 
 testGame = [
                 {
@@ -479,7 +479,7 @@ def generateTestCase(store=True):
     #TODO create map independent from battle. A lot of innecesary stuff there and pygame is heavy
 
     #Generate map
-    batalla = Battle.randomMap()
+    batalla = virtualBattle.randomMap()
     batalla.initGame()
 
     initialState = batalla.getGameState()
