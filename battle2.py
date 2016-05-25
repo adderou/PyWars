@@ -187,8 +187,8 @@ class Battle():
         y = random.randint(0, 15)
         d = 2
         while team1Size>0:
-            # unitType = random.randint(1,6)
-            unitType = 5
+            unitType = random.randint(1,6)
+            # unitType = 5
             x = random.randint(max(0, x - d), min(9, x + d))
             y = random.randint(max(0, y - d), min(15, y + d))
             while ((x,y) in used):
@@ -198,8 +198,8 @@ class Battle():
             unitString += str(0)+" "+str(unitType)+" "+str(x)+","+str(y)+"\n"
             team1Size-=1
         while team2Size > 0:
-            # unitType = random.randint(1, 6)
-            unitType = 5
+            unitType = random.randint(1, 6)
+            # unitType = 5
             x = random.randint(max(0, x - d), min(9, x + d))
             y = random.randint(max(0, y - d), min(15, y + d))
             while ((x,y) in used):
