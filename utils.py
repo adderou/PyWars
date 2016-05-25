@@ -316,8 +316,6 @@ def doTransition(state,action):
         except Exception,e:
             print (e)
 
-        if troopA['x'] == troopB['x'] and troopA['y'] == troopB['y']:
-            print "error"
 
         #get env
 
@@ -388,8 +386,10 @@ def calcReward(state,action,nextState,currentTurn):
 
 def checkTerminal(state,currentTurn):
     if len(state["Troops"][1-currentTurn]) == 0:
+        print "Game ended in WIN for ",currentTurn
         return 1
     if len(state["Troops"][currentTurn]) == 0:
+        print "Game ended in LOSE for ", currentTurn
         return -1
     else:
         return 0
@@ -428,6 +428,7 @@ def gameLoop(baseBattle,initialState,funStateAction,store=True,randomProb=0.5):
                     value = funStateAction(state,action)
                     heapq.heappush(heapAction,(value,action))
                 bestValue, bestAction = heapq.heappop(heapAction)
+                # print "Best action to choose ",bestAction
             else:
                 bestAction = random.choice(accionesValidas)
                 bestValue = -1
@@ -440,7 +441,7 @@ def gameLoop(baseBattle,initialState,funStateAction,store=True,randomProb=0.5):
             #set Action to state
             state['Action'] = bestAction
 
-            showTransition(state)
+            # showTransition(state)
 
             #append transition to game
             game.append(state)
@@ -485,11 +486,12 @@ def generateTestCase(store=True):
 
     #Send agresive evaluation. Always try to attack
     #If action type == 1 is an attack then eval to 1 else eval to 0
-    evalfun = lambda state,action : 1*(action['action_type'])
+    evalfun = lambda state,action : -1*(action['action_type'])
 
-    game = gameLoop(batalla,initialState,evalfun)
+    game = gameLoop(batalla,initialState,evalfun,store=store)
 
     print "Game generation ended ",len(game)," transitions"
+    return game
 
 
 def showTransition(transition):

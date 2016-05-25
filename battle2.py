@@ -187,7 +187,8 @@ class Battle():
         y = random.randint(0, 15)
         d = 2
         while team1Size>0:
-            unitType = random.randint(1,6)
+            # unitType = random.randint(1,6)
+            unitType = 5
             x = random.randint(max(0, x - d), min(9, x + d))
             y = random.randint(max(0, y - d), min(15, y + d))
             while ((x,y) in used):
@@ -197,7 +198,8 @@ class Battle():
             unitString += str(0)+" "+str(unitType)+" "+str(x)+","+str(y)+"\n"
             team1Size-=1
         while team2Size > 0:
-            unitType = random.randint(1, 6)
+            # unitType = random.randint(1, 6)
+            unitType = 5
             x = random.randint(max(0, x - d), min(9, x + d))
             y = random.randint(max(0, y - d), min(15, y + d))
             while ((x,y) in used):
@@ -843,25 +845,25 @@ class Battle():
             # Agregarla a la lista como movimiento
             # Para cada posicion del mapa
             moves.append(entry)
+
             if unit.isArtilleryUnit:
                 self.getArtilleryInPlace(unit,mov)
             else:
                 self.getTargetsIn(mov)
             for coords in self.targets:
                 xa,ya = coords
-                taxicabDistance = abs(yf - ya) + abs(xf - xa)
+                distanceMoved = abs(yf - yi) + abs(xf - xi)
                 # Si hay algun enemigo en ella, agregar a la lista como movimiento
-                #OJO OJO OJO AQUI QUITE COMPROBACION CANATTACK
-                # if self.canAttack(unit,coords,taxicabDistance):
-                entry = {}
-                entry['Xi'] = xi
-                entry['Yi'] = yi
-                entry['Xf'] = xf
-                entry['Yf'] = yf
-                entry['Xa'] = xa
-                entry['Ya'] = ya
-                entry['action_type'] = 1
-                moves.append(entry)
+                if self.canAttack(unit,mov,distanceMoved):
+                    entry = {}
+                    entry['Xi'] = xi
+                    entry['Yi'] = yi
+                    entry['Xf'] = xf
+                    entry['Yf'] = yf
+                    entry['Xa'] = xa
+                    entry['Ya'] = ya
+                    entry['action_type'] = 1
+                    moves.append(entry)
 
         self.targets = []
         self.clearMovementRange()
