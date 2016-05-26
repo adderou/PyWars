@@ -17,7 +17,7 @@ import pylab as plt
 import random
 
 #Convencciones EL TROOPS[0] ES BLUE Y EL TROOPS[1] ES RED
-from battle import Battle
+from battle2 import Battle
 
 testGame = [
                 {
@@ -247,19 +247,19 @@ def jointCellTypes(transition):
     return dictCell
 
 #TODO get all posible actions
-def getActionTroop(state, troop):
-    if troop['Can_move']:
-        return [{
-            'Xi': troop['x'],
-            'Yi': troop['y'],
-            'Xf': troop['x']+1,
-            'Yf': troop['y'],
-            'Xa': 0,
-            'Ya': 0,
-            'action_type': 0  # MoveAttack if value is 1, 0 just move.
-        }
-        ]
-    return []
+# def getActionTroop(state, troop):
+#     if troop['Can_move']:
+#         return [{
+#             'Xi': troop['x'],
+#             'Yi': troop['y'],
+#             'Xf': troop['x']+1,
+#             'Yf': troop['y'],
+#             'Xa': 0,
+#             'Ya': 0,
+#             'action_type': 0  # MoveAttack if value is 1, 0 just move.
+#         }
+#         ]
+#     return []
 
 
 
@@ -288,7 +288,10 @@ def doTransition(state,action):
     current_team = currentTroop["Team"]
 
     #Could it move?
-    assert(currentTroop["Can_move"])
+    try:
+        assert(currentTroop["Can_move"])
+    except Exception,e:
+        print str(e)
     #move to Xf,Yf
     currentTroop['x'] = action['Xf']
     currentTroop['y'] = action['Yf']
@@ -305,7 +308,15 @@ def doTransition(state,action):
         troopA = currentTroop
         #getTroopB
         troopB = None
-        troopB = [troop for troop in state["Troops"][1-current_team] if ((troop["x"] == action['Xa']) and (troop["y"] == action['Ya']))][0]
+
+
+        try:
+            troopB = [troop for troop in state["Troops"][1-current_team] if ((troop["x"] == action['Xa']) and (troop["y"] == action['Ya']))][0]
+        except Exception,e:
+            print (e)
+
+        if troopA['x'] == troopB['x'] and troopA['y'] == troopB['y']:
+            print "error"
 
         #get env
 
@@ -386,11 +397,15 @@ def checkTerminal(state,currentTurn):
 def encodeActionJson():
     pass
 
-def gameLoop(initialState,funStateAction,store=True,randomProb=0.5):
+def gameLoop(baseBattle,initialState,funStateAction,store=True,randomProb=0.5):
+
+    #just to avoid infinite loops
+    maxIter = 100
+
     #get initial game state
     game = []
     state = initialState
-
+    baseBattle.setGameState(state)
     nextState = None
 
     #Is red or blue turn?
@@ -400,7 +415,7 @@ def gameLoop(initialState,funStateAction,store=True,randomProb=0.5):
 
         for troop in state['Troops'][activeTeam]:
             heapAction = [] #The python heap keep TUPLES (value,action) sorted by value like a heap
-            accionesValidas = getActionTroop(state,troop)
+            accionesValidas = baseBattle.getPossibleMoves((troop['x'], troop['y']))
 
             #Random action or evaluation ?
             randomNumber = random.random()
@@ -422,6 +437,9 @@ def gameLoop(initialState,funStateAction,store=True,randomProb=0.5):
             #append transition to game
             game.append(state)
             state = nextState
+            baseBattle.setGameState(state)
+
+            showTransition(state)
 
             # maybe we win but we havent move all
             if checkTerminal(state, activeTeam) != 0:
@@ -431,8 +449,13 @@ def gameLoop(initialState,funStateAction,store=True,randomProb=0.5):
         for troop in state['Troops'][activeTeam]:
             troop['Can_move'] = 1
         activeTeam = 1-activeTeam
+        baseBattle.activePlayer = baseBattle.teams[activeTeam]
 
 
+        maxIter -= 1
+        if maxIter == 0:
+            print "Maxima iteracion alcanzada saliendo"
+            break
 
     #place terminal in last transition
     if store:
@@ -449,6 +472,7 @@ def generateTestCase(store=True):
 
     #Generate map
     batalla = Battle.randomMap()
+    batalla.initGame()
 
     initialState = batalla.getGameState()
 
@@ -456,7 +480,7 @@ def generateTestCase(store=True):
     #If action type == 1 is an attack then eval to 1 else eval to 0
     evalfun = lambda state,action : 1*(action['action_type'])
 
-    game = gameLoop(initialState,evalfun)
+    game = gameLoop(batalla,initialState,evalfun)
 
     print "Game generation ended ",len(game)," transitions"
 
@@ -486,8 +510,8 @@ def showTransition(transition):
 
     for cell in transition["Terrain"]:
         type = cell["Terrain_type"]
-        x = cell["x"]*tileDim
-        y = cell["y"]*tileDim
+        x = cell["y"]*tileDim
+        y = cell["x"]*tileDim
         img = io.imread(rutaTiles+dictMap[type])
         img = skimage.img_as_float(img)
         base[y:y + img.shape[0],x:x + img.shape[1]] = img
@@ -502,8 +526,8 @@ def showTransition(transition):
             img = skimage.img_as_float(io.imread(rutaTroops+side+dictTroop[type]))
             hpImg = skimage.img_as_float(io.imread(rutaTroops+str(hp/10)+".png"))
 
-            x = troop["x"] * tileDim
-            y = troop["y"] * tileDim
+            x = troop["y"] * tileDim
+            y = troop["x"] * tileDim
 
             mask = np.zeros(base.shape)
             mask[y:y + img.shape[0], x:x + img.shape[1]] = img

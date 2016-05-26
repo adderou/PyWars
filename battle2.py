@@ -407,6 +407,7 @@ class Battle():
         """Return true if (row, col) is occupied by an enemy team"""
         row, col = coords
         unit = self.unitSpace[row][col]
+
         activeTeam = self.activePlayer.color
         return (unit != None) and (unit.team != activeTeam)
 
@@ -463,7 +464,7 @@ class Battle():
         adjacentDir = [(1, 0), (-1, 0), (0, 1), (0, -1)]
         for (dRow, dCol) in adjacentDir:
             newRow, newCol = cRow + dRow, cCol + dCol
-            if ((0 <= newRow <= self.rows and 0 <= newCol < self.cols) and
+            if ((0 <= newRow < self.rows and 0 <= newCol < self.cols) and
                 self.isBlocked((newRow, newCol))):
                 return True
         return False
@@ -640,9 +641,8 @@ class Battle():
         self.targetCoords = newCoords
 
 
-    def getArtilleryTargetsIn(self,coords):
-        cRow, cCol = coords
-        unit = self.unitSpace[cRow][cCol]
+    def getArtilleryInPlace(self,unit,cords):
+        cRow, cCol = cords
         maxDistance = unit.artilleryMaxRange
         minDistance = unit.artilleryMinRange
         for row in xrange(cRow - maxDistance, cRow + maxDistance + 1):
@@ -652,6 +652,10 @@ class Battle():
                     self.isBlocked((row, col)) and
                     (minDistance <= taxicabDistance <= maxDistance)):
                     self.targets.append((row, col))
+    def getArtilleryTargetsIn(self,coords):
+        cRow, cCol = coords
+        unit = self.unitSpace[cRow][cCol]
+        return self.getArtilleryInPlace(unit,coords)
 
     def getArtilleryTargets(self):
         self.getArtilleryTargetsIn(self.attackerCoords)
@@ -786,7 +790,7 @@ class Battle():
             for j in range(len(map[i])):
                 print map[i]
                 terrainType = map[i][j] if (int == type(map[i][j])) else  map[i][j][1]
-                GameState['Terrain'].append({'x': j, 'y': i, 'Terrain_type': terrainType})
+                GameState['Terrain'].append({'x': i, 'y': j, 'Terrain_type': terrainType})
         # Troops
         GameState['Troops'] = [[],[]]
         for i in range(len(units)):
@@ -794,8 +798,8 @@ class Battle():
                 if units[i][j] is not None:
                     num = 0 if (units[i][j].team == 'Blue') else 1
                     GameState['Troops'][num].append(
-                        {'x': j,
-                         'y': i,
+                        {'x': i,
+                         'y': j,
                          'Team': num,
                          'Troop': invShopTypes[units[i][j].type],
                          'Can_move': (1-int(units[i][j].hasMoved)),
@@ -805,12 +809,11 @@ class Battle():
 
     def getPossibleMoves(self, position):
         # print position
-        xi, yi = position
+        xi,yi = position
         unit = self.unitSpace[xi][yi]
-        justMove = []
-        moveAttack = []
+        moves = []
         # Conseguir todas las posibles posiciones
-        self.getMovementRangeOf(position)
+        self.getMovementRangeOf((xi,yi))
         movRange = self.movementRange
         # Para cada posible posicion
         for mov in movRange:
@@ -822,12 +825,12 @@ class Battle():
             entry['Yf'] = yf
             entry['Xa'] = 0
             entry['Ya'] = 0
-            entry['Can_move'] = 0
+            entry['action_type'] = 0
             # Agregarla a la lista como movimiento
             # Para cada posicion del mapa
-            justMove.append(entry)
+            moves.append(entry)
             if unit.isArtilleryUnit:
-                self.getArtilleryTargetsIn(mov)
+                self.getArtilleryInPlace(unit,mov)
             else:
                 self.getTargetsIn(mov)
             for coords in self.targets:
@@ -842,10 +845,10 @@ class Battle():
                     entry['Yf'] = yf
                     entry['Xa'] = xa
                     entry['Ya'] = ya
-                    entry['Can_move'] = 1
-                    moveAttack.append(entry)
+                    entry['action_type'] = 1
+                    moves.append(entry)
         # Devolver lista de movimientos posibles
-        return justMove,moveAttack
+        return moves
 
     #Seteamos ahora las tropas del json en el modelo
     def setGameState(self,gameState):
