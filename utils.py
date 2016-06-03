@@ -78,11 +78,22 @@ state_id
 def gameToInputNN():
     pass
 
+def getRandomGamesDb(number,cursor):
+    gameList = []
+    query = "SELECT `id` from `game` ORDER BY RAND() LIMIT %s ;"
+    cursor.execute(query,(number,))
+    result = cursor.fetchall()
+    print result
+    for row in result:
+        ident = int(row['id'])
+        print ident
+        gameList.append(getGamefromDb(ident,cursor))
+    return gameList
+
 
 
 #nota 1 ya no es necesario first game id
 def getGamefromDb(idGame,cursor):
-
 
     query = "SELECT * FROM `state`, `cell_states`   WHERE `game_id` = %s and `state_id` = `current_state_id` " \
             "ORDER  BY `order_in_game` "
@@ -195,13 +206,13 @@ def saveTransitionToDb(cursor,transition,gameId,orderInGame):
               transition['Action']['Xa'],
               transition['Action']['Ya']],
               )
-    print params
+    # print params
     #current_state_id	game_id	xi	yi	xf	yf	action	order_in_game	next_terminal
 
     #insert new state id with action and order return this state_id
     cursor.execute(query,params)
     idState = int(cursor.lastrowid)
-    print 'Id del state ',idState
+    # print 'Id del state ',idState
 
     #create all the cell given the state_id
     #id	can_move	x	y	terrain_type_id	troop_id
@@ -218,9 +229,9 @@ def saveTransitionToDb(cursor,transition,gameId,orderInGame):
         listCell.append(idState)
         paramsString += (str(tuple(listCell))+' , ')
     paramsString = paramsString[:-2]
-    print {'Can_move': 0, 'x': 1, 'y': 2, 'Terrain_type': 3, 'Troop': 4, 'Team': 5,
-             'HP': 6}
-    print 'Params to add ',paramsString
+    # print {'Can_move': 0, 'x': 1, 'y': 2, 'Terrain_type': 3, 'Troop': 4, 'Team': 5,
+    #          'HP': 6}
+    # print 'Params to add ',paramsString
 
 
     #Add all cells to DB
@@ -246,21 +257,6 @@ def jointCellTypes(transition):
         for key in cell:
             dictCell[(cell['x'], cell['y'])][order[key]] = cell[key]
     return dictCell
-
-#TODO get all posible actions
-# def getActionTroop(state, troop):
-#     if troop['Can_move']:
-#         return [{
-#             'Xi': troop['x'],
-#             'Yi': troop['y'],
-#             'Xf': troop['x']+1,
-#             'Yf': troop['y'],
-#             'Xa': 0,
-#             'Ya': 0,
-#             'action_type': 0  # MoveAttack if value is 1, 0 just move.
-#         }
-#         ]
-#     return []
 
 
 
@@ -289,10 +285,7 @@ def doTransition(state,action):
     current_team = currentTroop["Team"]
 
     #Could it move?
-    try:
-        assert(currentTroop["Can_move"])
-    except Exception,e:
-        print str(e)
+    assert(currentTroop["Can_move"])
     #move to Xf,Yf
     currentTroop['x'] = action['Xf']
     currentTroop['y'] = action['Yf']
@@ -311,10 +304,8 @@ def doTransition(state,action):
         troopB = None
 
 
-        try:
-            troopB = [troop for troop in state["Troops"][1-current_team] if ((troop["x"] == action['Xa']) and (troop["y"] == action['Ya']))][0]
-        except Exception,e:
-            print (e)
+        troopB = [troop for troop in state["Troops"][1-current_team] if ((troop["x"] == action['Xa']) and (troop["y"] == action['Ya']))][0]
+
 
 
         #get env
@@ -358,7 +349,6 @@ def doTransition(state,action):
     return state
 
 """
-WE CALCULATE FOR RED PLAYER state["Troops"][0] = Red
 Reward for state,action,nextState
 For the first try the Network will estimate Q(s,a) as the EXPECTED COST from S taking action A.
 The agent try to take the minium cost path (path to goal WIN STATE).
@@ -398,7 +388,7 @@ def checkTerminal(state,currentTurn):
 def encodeActionJson():
     pass
 
-def gameLoop(baseBattle,initialState,funStateAction,store=True,randomProb=0.5):
+def gameLoop(baseBattle,initialState,funStateAction,store=True,randomProb=0.5,cursor=None):
 
     #just to avoid infinite loops
     maxIter = 100
@@ -468,13 +458,13 @@ def gameLoop(baseBattle,initialState,funStateAction,store=True,randomProb=0.5):
     #place terminal in last transition
     if store:
         #open db and store game
-        saveGameToDb(None,game,'GameComment')
+        saveGameToDb(cursor,game,'GameComment')
 
     return game
 
 
 
-def generateTestCase(store=True):
+def generateTestCase(cursor,store=True):
 
     #TODO create map independent from battle. A lot of innecesary stuff there and pygame is heavy
 
@@ -488,7 +478,7 @@ def generateTestCase(store=True):
     #If action type == 1 is an attack then eval to 1 else eval to 0
     evalfun = lambda state,action : -1*(action['action_type'])
 
-    game = gameLoop(batalla,initialState,evalfun,store=store)
+    game = gameLoop(batalla,initialState,evalfun,store=store,cursor=cursor)
 
     print "Game generation ended ",len(game)," transitions"
     return game
@@ -610,7 +600,24 @@ if __name__ == '__main__':
     # cursor.close()
     # db.commit()
     # db.close()
-    game = generateTestCase(False)
 
-    for transition in game:
-        showTransition(transition)
+    db = MySQLdb.connect("200.9.100.170", "bayes", "yesbayesyes", "bayes")
+    cursor = db.cursor()
+    cursor = db.cursor (MySQLdb.cursors.DictCursor)
+
+    mode = "showRandomGames"
+    # mode = "generateRandomGames"
+
+    if mode == "generateRandomGames":
+        for i in range(300):
+            game = generateTestCase(cursor,True)
+
+    if mode == "showRandomGames":
+        gameList = getRandomGamesDb(2,cursor)
+        for game in gameList:
+            for transition in game:
+                showTransition(transition)
+
+    cursor.close()
+    db.commit()
+    db.close()
