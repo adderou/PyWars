@@ -1,4 +1,6 @@
-
+#problema 1 conseguir nextState (debe meterse la id siguiente en algun lado)
+#problema 2 conseguir turno actual
+#problema 3 conseguir representacion array
 
 
 def toInput(jsonState):
@@ -22,7 +24,6 @@ def getTrainingSet(bsim,evalFun):
             #Reward WIn or Lose
             reward = 1 if jsonState['next_terminal'] == -1 else 0
             arrayRep = toInput(jsonState)
-
             listaXtarget.append((arrayRep,reward))
 
         else:
