@@ -17,7 +17,7 @@ import skimage
 import pylab as plt
 import random
 
-#Convencciones EL TROOPS[0] ES BLUE Y EL TROOPS[1] ES RED
+#Convencciones EL TROOPS[0] ES RED Y EL TROOPS[1] ES BLUE
 from batleStub import virtualBattle
 
 testGame = [
@@ -90,7 +90,27 @@ def getRandomGamesDb(number,cursor):
         gameList.append(getGamefromDb(ident,cursor))
     return gameList
 
+def getNStates(number,cursor):
+    states = []
 
+    query = "SELECT `current_state_id` from `state` ORDER BY RAND() LIMIT %s ;"
+    cursor.execute(query,(number,))
+    result = cursor.fetchall()
+    print result
+    for row in result:
+        ident = int(row['current_state_id'])
+
+
+        query = "SELECT * FROM `state`, `cell_states`   WHERE `current_state_id` = %s and `state_id` = `current_state_id` ;"
+        cursor.execute(query,(ident,))
+        cellsState = cursor.fetchall()
+        processed = processCellList(cellsState)
+        #resulting game should have only 1 state
+        assert(len(processed) == 1)
+        #append to states
+        states.append(processed[0])
+
+    return states
 
 #nota 1 ya no es necesario first game id
 def getGamefromDb(idGame,cursor):
@@ -101,55 +121,64 @@ def getGamefromDb(idGame,cursor):
     cursor.execute(query,(str(idGame),))
     result = cursor.fetchall()
 
+    return processCellList(result)
+
+
+
+"""
+Given a list of cells process all the states (must follow game_order) return gameList.
+Game list is a list of states.
+"""
+def processCellList(result):
     listGame = []
     currentId = -1
-    currentRow = None
+    currentState = None
 
 
 
     #get all rows in state,cell with game id
-    for row in result:
+    for cell in result:
 
-        rowId = int(row['state_id'])
+        rowId = int(cell['state_id'])
 
         if rowId != currentId:
             #change currentRow
-            currentRow = {}
+            currentState = {}
             currentId = rowId
             #format action
-            currentRow['Action'] = {}
-            currentRow['Action']['Xi'] = int(row['xi'])
-            currentRow['Action']['Yi'] = int(row['yi'])
-            currentRow['Action']['Xf'] = int(row['xf'])
-            currentRow['Action']['Yf'] = int(row['yf'])
-            currentRow['Action']['Xa'] = int(row['xa'])
-            currentRow['Action']['Ya'] = int(row['ya'])
-            currentRow['Action']['action_type'] = int(row['action'])
+            currentState['Action'] = {}
+            currentState['Action']['Xi'] = int(cell['xi'])
+            currentState['Action']['Yi'] = int(cell['yi'])
+            currentState['Action']['Xf'] = int(cell['xf'])
+            currentState['Action']['Yf'] = int(cell['yf'])
+            currentState['Action']['Xa'] = int(cell['xa'])
+            currentState['Action']['Ya'] = int(cell['ya'])
+            currentState['Action']['action_type'] = int(cell['action'])
 
             #format next_terminal
-            currentRow['next_terminal'] = int(row['next_terminal'])
+            currentState['next_terminal'] = int(cell['next_terminal'])
 
             #initialize terrain, troops as empty lists
-            currentRow['Terrain'] = []
+            currentState['Terrain'] = []
             #Troops contains two list BlueTroops = list[0], RedTroops=list[1]
-            currentRow['Troops'] = [[],[]]
+            currentState['Troops'] = [[],[]]
             #append to gameList
-            listGame.append(currentRow)
+            listGame.append(currentState)
 
         #format cell things in currentRow object
-        newCellTerrain = {'x':int(row['x']),'y':int(row['y']),'Terrain_type':int(row['terrain_type_id'])}
+        newCellTerrain = {'x':int(cell['x']),'y':int(cell['y']),'Terrain_type':int(cell['terrain_type_id'])}
 
-        currentRow['Terrain'].append(newCellTerrain)
+        currentState['Terrain'].append(newCellTerrain)
 
         #Only add troop if troop_type != 0
-        troop_type = int(row['troop_id'])
+        troop_type = int(cell['troop_id'])
         if troop_type != 0:
-            newCellTroop = {'x':int(row['x']),'y':int(row['y'])
-                ,'Can_move':int(row['can_move']),'Troop':int(row['troop_id']),
-                            'Team':int(row['team_id']),'HP':int(row['hp'])
+            newCellTroop = {'x':int(cell['x']),'y':int(cell['y'])
+                ,'Can_move':int(cell['can_move']),'Troop':int(cell['troop_id']),
+                            'Team':int(cell['team_id']),'HP':int(cell['hp'])
                             }
-            currentTeam = int(row['team_id'])
-            currentRow['Troops'][currentTeam].append(newCellTroop)
+            currentTeam = int(cell['team_id'])
+            currentState['Troops'][currentTeam].append(newCellTroop)
 
     return listGame
 
@@ -605,18 +634,20 @@ if __name__ == '__main__':
     cursor = db.cursor()
     cursor = db.cursor (MySQLdb.cursors.DictCursor)
 
-    mode = "showRandomGames"
-    # mode = "generateRandomGames"
-
-    if mode == "generateRandomGames":
-        for i in range(300):
-            game = generateTestCase(cursor,True)
-
-    if mode == "showRandomGames":
-        gameList = getRandomGamesDb(2,cursor)
-        for game in gameList:
-            for transition in game:
-                showTransition(transition)
+    getNStates(3,cursor)
+    #
+    # mode = "showRandomGames"
+    # # mode = "generateRandomGames"
+    #
+    # if mode == "generateRandomGames":
+    #     for i in range(300):
+    #         game = generateTestCase(cursor,True)
+    #
+    # if mode == "showRandomGames":
+    #     gameList = getRandomGamesDb(2,cursor)
+    #     for game in gameList:
+    #         for transition in game:
+    #             showTransition(transition)
 
     cursor.close()
     db.commit()
