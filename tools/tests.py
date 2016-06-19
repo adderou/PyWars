@@ -2,7 +2,7 @@
 #if i store a game in the db and then i get the result the object should be the same
 import MySQLdb
 
-from utils import getGamefromDb,saveGameToDb
+from tools.database import getGamefromDb, saveGameToDb
 from utils import testGame
 if __name__ == '__main__':
     db = MySQLdb.connect("200.9.100.170", "bayes", "yesbayesyes", "bayes")

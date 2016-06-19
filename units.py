@@ -67,7 +67,10 @@ class Unit(pygame.sprite.Sprite):
     def getImage(self):
         filename = self.team + self.type + '.png'
         path = os.path.join('units', filename)
-        image = pygame.image.load(path)
+        try:
+            image = pygame.image.load(path)
+        except:
+            return None
         return image
 
     def getAttackModifier(self, other):

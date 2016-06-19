@@ -1,47 +1,14 @@
-#
 # X hacia abajo Y hacia la derecha centrado en la esquina sup izq
 import heapq
 import random
 
 import MySQLdb
-import numpy as np
-import pylab as plt
-import skimage
-from skimage import io
-from skimage.color import rgb2hsv,hsv2rgb
-from skimage.transform import resize
 
 from batleStub import virtualBattle
-from tools.agent import agresiveAgent
-from tools.database import getRandomGamesDb, saveGameToDb, jointCellTypes
-from tools.model import doTransition, calcReward, checkTerminal
-
-#Convencciones EL TROOPS[0] ES RED Y EL TROOPS[1] ES BLUE
-
-class gameSlider(object):
-    def __init__(self, ax, imageList):
-        self.ax = ax
-        # ax.set_title('use scroll wheel to navigate images')
-
-        self.data = imageList
-        self.ind = 0
-        self.maxImg = len(imageList)
-        self.im = ax.imshow(self.data[self.ind][0])
-        self.update()
-
-    def onscroll(self, event):
-        if event.button == 'up':
-            self.ind = (self.ind - 1) % (self.maxImg)
-        else:
-            self.ind = (self.ind + 1) % (self.maxImg)
-
-        self.update()
-
-    def update(self):
-        self.im.set_data(self.data[self.ind][0])
-        self.ax.set_title(self.data[self.ind][1]+'slice %s' % self.ind)
-        self.im.axes.figure.canvas.draw()
-
+from tools.agent import agresiveAgent, randomAgent
+from tools.database import getRandomGamesDb, saveGameToDb
+from tools.model import doTransition, calcReward, checkTerminal, getTurnFromState
+from tools.visualization import showGameScroll
 
 testGame = [
                 {
@@ -76,44 +43,23 @@ testGame = [
 
             ]
 
-"""
-A query to the db returns a list of cells that form a states
-All this columns make a cell
-current_state_id
-game_id	xi
-yi
-xf
-yf
-action
-next_state
-id
-can_move
-x
-y
-terrain_type_id
-troop_id
-team_id	hp
-visibility
-is_solid
-state_id
-"""
+
 
 #NOW RANDOM PROB IS inside agent behavior DEFAULT IS 0
-def gameLoop(baseBattle, initialState, agentRed,agentBlue, store=True,cursor=None):
+def gameLoop(baseBattle, initialState, agentRed,agentBlue,whoStart, store=True,cursor=None):
 
     #just to avoid infinite loops
     maxIter = 100
-    # print "bla"
     #get initial game state
     game = []
     state = initialState
     baseBattle.setGameState(state)
     #ASEGURATE QUE EL EQUIPO INICIAL SEA RED
-    baseBattle.activePlayer = baseBattle.teams[0]
+    baseBattle.activePlayer = baseBattle.teams[whoStart]
     nextState = None
 
     #Is red or blue turn?
-    activeTeam = 0
+    activeTeam = whoStart
 
     while checkTerminal(state, activeTeam) == 0:
         agent = agentRed if activeTeam == 0 else agentBlue
@@ -123,7 +69,7 @@ def gameLoop(baseBattle, initialState, agentRed,agentBlue, store=True,cursor=Non
 
             #Random action or evaluation ?
             randomNumber = random.random()
-            if randomNumber < agent.randomProb:
+            if randomNumber > agent.randomProb:
                 for action in accionesValidas:
                     value = agent.evalAction(state, action,activeTeam)
                     heapq.heappush(heapAction,(value,action))
@@ -174,9 +120,7 @@ def gameLoop(baseBattle, initialState, agentRed,agentBlue, store=True,cursor=Non
 
 
 
-def generateGame(cursor, store=True):
-
-    #TODO create map independent from battle. A lot of innecesary stuff there and pygame is heavy
+def generateGame(cursor,agentRed,agentBlue, store=True):
 
     #Generate map
     batalla = virtualBattle.randomMap()
@@ -184,137 +128,52 @@ def generateGame(cursor, store=True):
 
     initialState = batalla.getGameState()
 
-    #Send agresive evaluation. Always try to attack
-    #If action type == 1 is an attack then eval to 1 else eval to 0
-    agresiveRed = agresiveAgent()
-    agresiveBlue = agresiveAgent()
+    whoStart = random.randint(0,1)
+    game = gameLoop(batalla,initialState,agentRed,agentBlue,whoStart,store=store,cursor=cursor)
 
-    game = gameLoop(batalla,initialState,agresiveRed,agresiveBlue,store=store,cursor=cursor)
-
-    print "Game generation ended ",len(game)," transitions"
+    # print "Game generation ended ",len(game)," transitions"
     return game
 
 
-def showTransition(transition,dontShow=False):
-    rutaTiles = "tiles/"
-    rutaTroops="units/"
-    dictMap = {0:'WaterOpen.png',
-               1: 'Grass.png', 2: 'RoadInter.png',
-               3: 'Forest.png', 4: "simpleMountain.png", 5: 'simpleRiver.png',
-               6: 'BridgeHoriz.png'}
-    dictTroop = {1:'Infantry.png',2:'RocketInf.png',
-                 3:'SmTank.png',4:"LgTank.png",5:'Artillery.png',
-                 6:'APC.png'}
+def testAgentRed(agentRed,agentBlue,nGames=40):
+    won = 0
+    lost = 0
+    notEnded = 0
+    for i in range(nGames):
+        game = generateGame(cursor, agentRed, agentBlue, False)
+        endState = game[len(game) - 1]
+        endGameResult = endState['next_terminal']
+        endTurn = getTurnFromState(endState)
 
-    dictCell = jointCellTypes(transition)
+        if endGameResult == 0:
+            notEnded += 1
+        elif endGameResult == -1:
+            if endTurn == 0:
+                lost += 1
+            else:
+                won +=1
+        elif endGameResult == 1:
+            if endTurn == 0:
+                won += 1
+            else:
+                lost += 1
+    print ""
+    print 'Results for RED ',str(agentRed)," vs ",str(agentBlue)," in ",str(nGames),' games'
+    print ""
+    print "%Won ",won*1.0/nGames
+    print "%Lost ",lost*1.0/nGames
+    print "Draws ",notEnded
+    print ""
 
-    #Create empty image 10 * 16
+def analisisRedAgent():
+    agresiveRed = agresiveAgent()  # Always attack
+    agresiveBlue = agresiveAgent()
+    testAgentRed(agresiveRed, agresiveBlue,200)
 
-    base = io.imread("tiles/"+dictMap[0])
-    wImg = skimage.img_as_float(io.imread(rutaTroops + "wait.png"))
-    maxRows = 10
-    maxCols = 16
-    tileDim = 64
+    blue = randomAgent()
+    testAgentRed(agresiveRed, blue)
 
-    base = resize(base, (tileDim * maxRows, tileDim * maxCols))
-
-    for cell in transition["Terrain"]:
-        type = cell["Terrain_type"]
-        x = cell["y"]*tileDim
-        y = cell["x"]*tileDim
-        img = io.imread(rutaTiles+dictMap[type])
-        img = skimage.img_as_float(img)
-        base[y:y + img.shape[0],x:x + img.shape[1]] = img
-
-
-    #place troops
-    for index,side in enumerate(["Red","Blue"]):
-        for troop in transition["Troops"][index]:
-            canMove = troop["Can_move"]
-            hp = troop["HP"]
-            type = troop["Troop"]
-            img = skimage.img_as_float(io.imread(rutaTroops+side+dictTroop[type]))
-            hpImg = skimage.img_as_float(io.imread(rutaTroops+str(hp/10)+".png"))
-
-            x = troop["y"] * tileDim
-            y = troop["x"] * tileDim
-
-            mask = np.zeros(base.shape)
-            mask[y:y + tileDim, x:x + tileDim] = img
-            ms = np.bool_(mask[:, :, 3])
-            base[ms] = mask[ms]
-
-            mask = np.zeros(base.shape)
-            mask[y:y + tileDim, x:x + tileDim] = hpImg
-            ms = np.bool_(mask[:,:,3])
-            base[ms] = mask[ms]
-
-            if not canMove:
-                mask = np.zeros(base.shape)
-                mask[y:y + tileDim, x:x + tileDim] = wImg
-                ms = np.bool_(mask[:, :, 3])
-                base[ms] = mask[ms]
-
-    if (transition.has_key('Action')):
-        actionMask = np.zeros((base.shape[0],base.shape[1],3))
-
-        if (transition['Action']['action_type']):
-            x = transition['Action']["Ya"] * tileDim
-            y = transition['Action']["Xa"] * tileDim
-            actionMask[y:y + tileDim, x:x + tileDim] = [1,0,0]
-        x = transition['Action']["Yf"] * tileDim
-        y = transition['Action']["Xf"] * tileDim
-        actionMask[y:y + tileDim, x:x + tileDim] = [0,0,1]
-        x = transition['Action']["Yi"] * tileDim
-        y = transition['Action']["Xi"] * tileDim
-        actionMask[y:y + tileDim, x:x + tileDim] = [0,1,0]
-        alpha = 0.6
-
-        temp = rgb2hsv(base[:,:,:3])
-        color_mask_hsv = rgb2hsv(actionMask)
-        temp[..., 0] = color_mask_hsv[..., 0]
-        temp[..., 1] = color_mask_hsv[..., 1] * alpha
-
-        temp = hsv2rgb(temp)
-
-
-        if (transition['Action']['action_type']):
-            x = transition['Action']["Ya"] * tileDim
-            y = transition['Action']["Xa"] * tileDim
-            base[y:y + tileDim, x:x + tileDim,:3] = temp[y:y + tileDim, x:x + tileDim]
-
-        x = transition['Action']["Yf"] * tileDim
-        y = transition['Action']["Xf"] * tileDim
-        base[y:y + tileDim, x:x + tileDim,:3] = temp[y:y + tileDim, x:x + tileDim]
-
-        x = transition['Action']["Yi"] * tileDim
-        y = transition['Action']["Xi"] * tileDim
-        base[y:y + tileDim, x:x + tileDim,:3] = temp[y:y + tileDim, x:x + tileDim]
-
-        stringOut = "Xi, Yi : " + str((transition['Action']["Xi"],
-                                       transition['Action']["Yi"])) + " " +"Xf, Yf : " + \
-                    str((transition['Action']["Xf"], transition['Action']["Yf"])) + " " +"Type : " +\
-                    str(transition['Action']["action_type"]) + " ""Xa, Ya : " + str((transition['Action']["Xa"],
-                                                                                     transition['Action']["Ya"])) + " "
-
-    if dontShow:
-        return (base,stringOut)
-    plt.suptitle(stringOut)
-    plt.imshow(base)
-    plt.show()
-
-def showGameScroll(gameList):
-
-
-    imageList = [showTransition(state, True) for state in gameList]
-
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-
-    tracker = gameSlider(ax, imageList)
-
-    fig.canvas.mpl_connect('scroll_event', tracker.onscroll)
-    plt.show()
+    #TODO Mostrar ciertos estados con visualizaciones de acciones
 
 
 if __name__ == '__main__':
@@ -326,17 +185,30 @@ if __name__ == '__main__':
 
 
     # mode = "showRandomGames"
-    mode = "generateRandomGames"
+    mode = "showBattle"
+    mode='testAgent'
+    # mode = "generateRandomGames"
+
+    agresiveRed = agresiveAgent() #Always attack
+    agresiveBlue = agresiveAgent()
+    # agresiveBlue = loadNNTD1("tools/modelo TD1 500 iteraciones.pkl")
 
     if mode == "generateRandomGames":
-        for i in range(2):
-            game = generateGame(cursor, False)
+        for i in range(10000):
+            game = generateGame(cursor,agresiveRed,agresiveBlue, True)
+            print "Game generation ended ",len(game)," transitions"
 
-    if mode == "showRandomGames":
-        gameList = getRandomGamesDb(2, cursor)
+    elif mode == "showRandomGames":
+        gameList = getRandomGamesDb(10, cursor)
         #If goes too slow use for state in game : showTransition(state) JUST FOR BETTER VISUALIZATION
         for game in gameList:
             showGameScroll(game)
+    elif mode == "showBattle":
+        game = generateGame(cursor, agresiveRed, agresiveBlue, False)
+        showGameScroll(game)
+    elif mode == 'testAgent':
+        print "Testing agent Red "
+        analisisRedAgent()
 
     cursor.close()
     db.commit()
