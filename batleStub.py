@@ -86,6 +86,26 @@ class virtualBattle():
         units = virtualBattle.loadUnits(unitString)
         return virtualBattle(map, numPlayers, initialFunds, units)
 
+    def getTroopString(self,cords):
+        x,y = cords
+        return self.unitSpace[x][y].type
+
+    @staticmethod
+    def generateFromJson(jsonState):
+        baseMap = virtualBattle.generateRandomBaseMap()
+        numPlayers = 2
+        initialFunds = 0
+
+        for terrain in jsonState['Terrain']:
+            if (terrain['x'] == 2 and terrain['y'] == 2) or (terrain['x'] == 7 and terrain['y'] == 13):
+                continue
+            baseMap[terrain['x']][terrain['y']] = str(terrain['Terrain_type'])
+
+        map = virtualBattle.generateMapString(baseMap)
+        almostReady = virtualBattle(map, numPlayers, initialFunds, [])
+        almostReady.setGameState(jsonState)
+        return almostReady
+
     @staticmethod
     def generateRandomBaseMap():
         map = []
@@ -286,6 +306,17 @@ class virtualBattle():
             camRect = self.getCamRect(hqCoords)
             teams.append(Team(teamNumber, self.initialFunds, hqCoords, camRect))
         return teams
+
+    def placeInitialUnitsWithHp(self, initialUnits):
+        for item in initialUnits:
+            teamNum, typeNum, coords,troopHp = item
+            type = virtualBattle.shopTypes[typeNum]
+            team = self.teams[teamNum]
+            row, col = coords
+            unit = type(teamNum)
+            unit.health = troopHp
+            self.unitSpace[row][col] = unit
+            team.units.add(unit)
 
     def placeInitialUnits(self, initialUnits):
         """Add the initial units to the unit space"""
@@ -785,16 +816,20 @@ class virtualBattle():
     # Drawing to the screen
     ##################################################################
 
+    """
+    a battleStub need to be ajusted to represent a given game. Calling setMap given a jsonState set map (just call once)
+    and setGameState ajust troops
+    """
 
 
     def getGameState(self):
         invShopTypes = {
             'Infantry': 1,
             'RocketInf': 2,
-            'APC': 3,
-            'SmTank': 4,
-            'LgTank': 5,
-            'Artillery': 6
+            'APC': 6,
+            'SmTank': 3,
+            'LgTank': 4,
+            'Artillery': 5
         }
         GameState = {}
         GameState['Terrain'] = []
@@ -812,7 +847,7 @@ class virtualBattle():
         for i in range(len(units)):
             for j in range(len(units[i])):
                 if units[i][j] is not None:
-                    num = 0 if (units[i][j].team == 'Blue') else 1
+                    num = 0 if (units[i][j].team == 'Red') else 1
                     GameState['Troops'][num].append(
                         {'x': i,
                          'y': j,
@@ -823,7 +858,10 @@ class virtualBattle():
                          })
         return GameState
 
-    def getPossibleMoves(self, position):
+
+    def getPossibleMoves(self, position,turn):
+
+        self.activePlayer = self.teams[turn]
         # print position
         xi,yi = position
         unit = self.unitSpace[xi][yi]
@@ -864,6 +902,7 @@ class virtualBattle():
                     entry['Ya'] = ya
                     entry['action_type'] = 1
                     moves.append(entry)
+            self.targets = []
 
         self.targets = []
         self.clearMovementRange()
@@ -890,9 +929,9 @@ class virtualBattle():
         for i in range(len(gameState['Troops'])):
             for j in range(len(gameState['Troops'][i])):
                 currentTroop = gameState['Troops'][i][j]
-                item = (i, convertType[currentTroop['Troop']], (currentTroop['x'],currentTroop['y']))
+                item = (i, convertType[currentTroop['Troop']], (currentTroop['x'],currentTroop['y']),currentTroop['HP'])
                 initialUnits.append(item)
-        self.placeInitialUnits(initialUnits)
+        self.placeInitialUnitsWithHp(initialUnits)
 
 # testMapPath = os.path.join('maps', 'gauntlet.tpm')
 # a = Battle.fromFile(testMapPath)

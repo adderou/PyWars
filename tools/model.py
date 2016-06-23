@@ -130,3 +130,13 @@ def checkTerminal(state,currentTurn):
         return -1
     else:
         return 0
+
+def getAllPosibleActions(baseBattle,state,turn):
+    allPosible = []
+    for troop in state['Troops'][turn]:
+        if troop['Can_move'] == 0:
+            continue
+        allPosible += baseBattle.getPossibleMoves((troop['x'], troop['y']),turn)
+    return allPosible
+
+

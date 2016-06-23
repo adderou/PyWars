@@ -14,3 +14,6 @@ if __name__ == '__main__':
     assert(game2Test == testGame)
     cursor.close()
     db.close()
+
+
+

@@ -1,14 +1,12 @@
 # X hacia abajo Y hacia la derecha centrado en la esquina sup izq
 import heapq
 import random
-
 import MySQLdb
-
 from batleStub import virtualBattle
 from tools.agent import agresiveAgent, randomAgent
-from tools.database import getRandomGamesDb, saveGameToDb
-from tools.model import doTransition, calcReward, checkTerminal, getTurnFromState
-from tools.visualization import showGameScroll
+from tools.database import getRandomGamesDb, saveGameToDb, getNStates, getStateFromId
+from tools.model import doTransition, calcReward, checkTerminal, getTurnFromState, getAllPosibleActions
+from tools.visualization import showGameScroll, showTransition, showActionsAgent
 
 testGame = [
                 {
@@ -63,9 +61,9 @@ def gameLoop(baseBattle, initialState, agentRed,agentBlue,whoStart, store=True,c
 
     while checkTerminal(state, activeTeam) == 0:
         agent = agentRed if activeTeam == 0 else agentBlue
-        for troop in state['Troops'][activeTeam]:
+        accionesValidas = getAllPosibleActions(baseBattle,state, activeTeam)
+        while len(accionesValidas) != 0:
             heapAction = [] #The python heap keep TUPLES (value,action) sorted by value like a heap
-            accionesValidas = baseBattle.getPossibleMoves((troop['x'], troop['y']))
 
             #Random action or evaluation ?
             randomNumber = random.random()
@@ -93,6 +91,9 @@ def gameLoop(baseBattle, initialState, agentRed,agentBlue,whoStart, store=True,c
             game.append(state)
             state = nextState
             baseBattle.setGameState(state)
+
+            #Calculate new state actions
+            accionesValidas = getAllPosibleActions(baseBattle, state, activeTeam)
 
 
             # maybe we win but we havent move all
@@ -165,16 +166,17 @@ def testAgentRed(agentRed,agentBlue,nGames=40):
     print "Draws ",notEnded
     print ""
 
-def analisisRedAgent():
-    agresiveRed = agresiveAgent()  # Always attack
+def analisisRedAgent(agentToTest,cursor):
+    #test agent vs agresive blue
     agresiveBlue = agresiveAgent()
-    testAgentRed(agresiveRed, agresiveBlue,200)
+    testAgentRed(agentToTest, agresiveBlue,40)
 
+    # test agent vs random blue
     blue = randomAgent()
-    testAgentRed(agresiveRed, blue)
+    testAgentRed(agentToTest, blue)
 
-    #TODO Mostrar ciertos estados con visualizaciones de acciones
-
+    state = getNStates(1, cursor)[0]
+    showActionsAgent(state, agentToTest, 0)
 
 if __name__ == '__main__':
 
@@ -185,17 +187,17 @@ if __name__ == '__main__':
 
 
     # mode = "showRandomGames"
-    mode = "showBattle"
+    # mode = "showBattle"
     mode='testAgent'
     # mode = "generateRandomGames"
 
-    agresiveRed = agresiveAgent() #Always attack
+    agentRed = agresiveAgent()
     agresiveBlue = agresiveAgent()
     # agresiveBlue = loadNNTD1("tools/modelo TD1 500 iteraciones.pkl")
 
     if mode == "generateRandomGames":
-        for i in range(10000):
-            game = generateGame(cursor,agresiveRed,agresiveBlue, True)
+        for i in range(1000):
+            game = generateGame(cursor,agentRed,agresiveBlue, True)
             print "Game generation ended ",len(game)," transitions"
 
     elif mode == "showRandomGames":
@@ -204,11 +206,11 @@ if __name__ == '__main__':
         for game in gameList:
             showGameScroll(game)
     elif mode == "showBattle":
-        game = generateGame(cursor, agresiveRed, agresiveBlue, False)
+        game = generateGame(cursor, agentRed, agresiveBlue, False)
         showGameScroll(game)
     elif mode == 'testAgent':
         print "Testing agent Red "
-        analisisRedAgent()
+        analisisRedAgent(agentRed,cursor)
 
     cursor.close()
     db.commit()

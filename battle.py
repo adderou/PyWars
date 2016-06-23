@@ -95,6 +95,7 @@ class Battle(PygameBaseClass):
         units = Battle.loadUnits(unitString)
         return Battle(map, numPlayers, initialFunds, units)
 
+
     @staticmethod
     def generateRandomBaseMap():
         map = []
@@ -1231,85 +1232,7 @@ class Battle(PygameBaseClass):
         pygame.display.flip()
 
 
-    def getGameState(self):
-        invShopTypes = {
-            'Infantry': 1,
-            'RocketInf': 2,
-            'APC': 3,
-            'SmTank': 4,
-            'LgTank': 5,
-            'Artillery': 6
-        }
-        GameState = {}
-        GameState['Terrain'] = []
-        map = self.map.contents;
-        print map
-        units = self.unitSpace;
-        # Terrain
-        for i in range(len(map)):
-            for j in range(len(map[i])):
-                print map[i];
-                terrainType = map[i][j] if (int == type(map[i][j])) else  map[i][j][1]
-                GameState['Terrain'].append({'x': j, 'y': i, 'Terrain_type': terrainType})
-        # Troops
-        GameState['Troops'] = [[],[]]
-        for i in range(len(units)):
-            for j in range(len(units[i])):
-                if units[i][j] is not None:
-                    num = 0 if (units[i][j].team == 'Blue') else 1
-                    GameState['Troops'][num].append(
-                        {'x': j,
-                         'y': i,
-                         'Team': num,
-                         'Troop': invShopTypes[units[i][j].type],
-                         'Can_move': (1-int(units[i][j].hasMoved)),
-                         'HP': units[i][j].health
-                         })
-        return GameState
 
-    def getPossibleMoves(self, position):
-        # print position
-        xi, yi = position
-        unit = self.unitSpace[xi][yi]
-        justMove = []
-        moveAttack = []
-        # Conseguir todas las posibles posiciones
-        self.getMovementRangeOf(position)
-        movRange = self.movementRange
-        # Para cada posible posicion
-        for mov in movRange:
-            entry = {}
-            xf,yf = mov
-            entry['Xi'] = xi
-            entry['Yi'] = yi
-            entry['Xf'] = xf
-            entry['Yf'] = yf
-            entry['Xa'] = 0
-            entry['Ya'] = 0
-            entry['Can_move'] = 0
-            # Agregarla a la lista como movimiento
-            # Para cada posicion del mapa
-            justMove.append(entry)
-            if unit.isArtilleryUnit:
-                self.getArtilleryTargetsIn(mov)
-            else:
-                self.getTargetsIn(mov)
-            for coords in self.targets:
-                xa,ya = coords
-                taxicabDistance = abs(yi - ya) + abs(xi - xa)
-                # Si hay algun enemigo en ella, agregar a la lista como movimiento
-                if self.canAttack(unit,coords,taxicabDistance):
-                    entry = {}
-                    entry['Xi'] = xi
-                    entry['Yi'] = yi
-                    entry['Xf'] = xf
-                    entry['Yf'] = yf
-                    entry['Xa'] = xa
-                    entry['Ya'] = ya
-                    entry['Can_move'] = 1
-                    moveAttack.append(entry)
-        # Devolver lista de movimientos posibles
-        return justMove,moveAttack
 
 # testMapPath = os.path.join('maps', 'gauntlet.tpm')
 # a = Battle.fromFile(testMapPath)

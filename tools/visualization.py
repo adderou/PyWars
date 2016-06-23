@@ -5,9 +5,13 @@ from skimage import io
 from skimage.color import rgb2hsv, hsv2rgb
 from skimage.transform import resize
 
+from batleStub import virtualBattle
 from tools.database import jointCellTypes
 
 #Convencciones EL TROOPS[0] ES RED Y EL TROOPS[1] ES BLUE
+from tools.model import getAllPosibleActions
+
+
 class gameSlider(object):
     def __init__(self, ax, imageList):
         self.ax = ax
@@ -92,7 +96,7 @@ def showTransition(transition,dontShow=False):
                 mask[y:y + tileDim, x:x + tileDim] = wImg
                 ms = np.bool_(mask[:, :, 3])
                 base[ms] = mask[ms]
-
+    stringOut = 'No action'
     if (transition.has_key('Action')):
         actionMask = np.zeros((base.shape[0],base.shape[1],3))
 
@@ -154,3 +158,38 @@ def showGameScroll(gameList):
 
     fig.canvas.mpl_connect('scroll_event', tracker.onscroll)
     plt.show()
+
+def showActionsAgent(state,agent,turn):
+    teamActing = 'Red' if turn == 0 else 'Blue'
+    elseTeam = 'Red' if (1-turn) == 0 else 'Blue'
+
+    baseBattle = virtualBattle.generateFromJson(state)
+    baseBattle.initGame()
+    accionesValidas = getAllPosibleActions(baseBattle, state, turn)
+
+    #get all actions and value given agente
+    actionsValue = []  # The python heap keep TUPLES (value,action) sorted by value like a heap
+
+    for action in accionesValidas:
+        value = agent.evalAction(state, action, turn)
+
+        cordsA = (action['Xi'], action['Yi'])
+        cordsB = (action['Xf'], action['Yf'])
+        cordsAttack = (action['Xa'], action['Ya'])
+
+        troopActing = baseBattle.getTroopString(cordsA)
+
+        rest = ""
+        if action['action_type'] == 1:
+            troopAttacked = baseBattle.getTroopString(cordsAttack)
+            rest = 'and Attack '+elseTeam+" "+troopAttacked+str(cordsAttack)
+        stringRep = teamActing+" "+troopActing+str(cordsA)+" moving to "+str(cordsB)+" "+rest
+        actionsValue.append((value,stringRep,str(action)))
+    actionsValue.sort()
+
+    for elem in actionsValue:
+        print "Value ",elem[0]," ",elem[1]," ",elem[2]
+
+    showTransition(state)
+    print "Test"
+

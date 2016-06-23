@@ -1,6 +1,4 @@
 #Por hacer
-#TODO cambiar a modo elegir sobre todas las tropas y usar threads
-
 #Mostrar acciones y su valor
 
 #analisis de porcentaje victorias contra randon, agresivo,
@@ -203,10 +201,11 @@ if __name__ == "__main__":
     db = MySQLdb.connect("200.9.100.170", "bayes", "yesbayesyes", "bayes")
     cursor = db.cursor (MySQLdb.cursors.DictCursor)
 
+    hidenUnits = 50
     #Set up game inputs and hiden layers
-    nnAgent = neuralTD1Agent(3042, 50)
+    nnAgent = neuralTD1Agent(3042, hidenUnits)
 
-    trainingSamples = 100
+    trainingSamples = 1000
 
 
     #Train with N states
@@ -217,7 +216,7 @@ if __name__ == "__main__":
 
 
     # Save Model
-    name = "ModeloTD1 " + datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y").replace(".", " ").replace(":", " ")
+    name = "ModeloTD1 hd"+str(hidenUnits)+" samples "+str(trainingSamples)+" date "+datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y").replace(".", " ").replace(":", " ")
     output = open(name + '.pkl', 'wb')
     pickle.dump(nnAgent, output, -1)
 

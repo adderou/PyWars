@@ -42,7 +42,7 @@ def getRandomGamesDb(number,cursor):
 
 def getStateFromId(idState,cursor):
     ident = idState
-
+    # print "Getting ",ident
     query = "SELECT `json` FROM `state`  WHERE `current_state_id` = %s ;"
     cursor.execute(query, (ident,))
     cellsState = cursor.fetchall()
@@ -103,7 +103,7 @@ def getNStates(number,cursor,nthreads=1):
 def getGamefromDb(idGame,cursor):
 
     query = "SELECT * FROM `state`  WHERE `game_id` = %s ORDER  BY `order_in_game` "
-    print 'Getting ',idGame
+    # print 'Getting ',idGame
     cursor.execute(query,(str(idGame),))
     result = cursor.fetchall()
 
