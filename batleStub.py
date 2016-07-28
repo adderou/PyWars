@@ -76,11 +76,12 @@ class virtualBattle():
 
 
     @staticmethod
-    def randomMap():
+    def randomMap(fair=False):
         baseMap = virtualBattle.generateRandomBaseMap()
         numPlayers = 2
         initialFunds = 0
-        unitString, used = virtualBattle.generateUnits(baseMap)
+
+        unitString, used = virtualBattle.generateUnits(baseMap, fair)
         finalMap = virtualBattle.populateMap(baseMap, used)
         map = virtualBattle.generateMapString(finalMap)
         units = virtualBattle.loadUnits(unitString)
@@ -198,17 +199,23 @@ class virtualBattle():
 
 
     @staticmethod
-    def generateUnits(map):
+    def generateUnits(map, fair=False):
         unitString = ""
         team1Size = random.randint(1,3)
-        team2Size = random.randint(1,3)
+        if not(fair):
+            team2Size = random.randint(1,3)
+        else:
+            team2Size = team1Size
         used = []
+        # Positions
         x = random.randint(0, 9)
         y = random.randint(0, 15)
         d = 2
+        #If it's fair, the types of units must be the same.
+        firstUnitTypes = []
         while team1Size>0:
             unitType = random.randint(1,6)
-            # unitType = 5
+            firstUnitTypes.append(unitType);
             x = random.randint(max(0, x - d), min(9, x + d))
             y = random.randint(max(0, y - d), min(15, y + d))
             while ((x,y) in used):
@@ -218,8 +225,11 @@ class virtualBattle():
             unitString += str(0)+" "+str(unitType)+" "+str(x)+","+str(y)+"\n"
             team1Size-=1
         while team2Size > 0:
-            unitType = random.randint(1, 6)
-            # unitType = 5
+            # if it's fair, we get a random type from the types used by team 1.
+            if not(fair):
+                unitType = random.randint(1, 6)
+            else:
+                unitType = firstUnitTypes.pop(len(firstUnitTypes)-1)
             x = random.randint(max(0, x - d), min(9, x + d))
             y = random.randint(max(0, y - d), min(15, y + d))
             while ((x,y) in used):
@@ -227,7 +237,7 @@ class virtualBattle():
                 y = random.randint(max(0, y - d), min(15, y + d))
             used.append((x,y))
             unitString += str(1) + " " + str(unitType) + " " + str(x) + "," + str(y) + "\n"
-            team2Size -= 1
+            team2Size -= 1;
         return unitString, used
 
     ##################################################################
