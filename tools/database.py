@@ -42,7 +42,7 @@ def getRandomGamesDb(number,cursor):
 
 def getStateFromId(idState,cursor):
     ident = idState
-    # print "Getting ",ident
+    print "Getting state ",ident
     query = "SELECT `json` FROM `state`  WHERE `current_state_id` = %s ;"
     cursor.execute(query, (ident,))
     cellsState = cursor.fetchall()
@@ -68,13 +68,11 @@ def threadList(db,cursor,lista,inicio,salto,salida):
     return
 
 #Without threads this takes 17.84 s for 10 samples
-def getNStates(number,cursor,nthreads=1):
+def getNStates(number,cursor,query = "SELECT `current_state_id` from `state` ORDER BY RAND() LIMIT %s ;",nthreads=1):
     states = []
 
     if number < nthreads:
         nthreads = number
-
-    query = "SELECT `current_state_id` from `state` ORDER BY RAND() LIMIT %s ;"
     start = time.clock()
     cursor.execute(query,(number,))
     result = cursor.fetchall()
@@ -98,6 +96,8 @@ def getNStates(number,cursor,nthreads=1):
         stateList += t[1]
 
     return stateList
+
+
 
 
 def getGamefromDb(idGame,cursor):
@@ -133,10 +133,10 @@ def saveGameToDb(cursor, listaTrans, comment):
 
     #insert new Game row (first_state, comment)
 
-    insertQuery = "INSERT INTO `game`( `first_state`, `comment`)" \
-                  " VALUES ( %s,%s); "
+    insertQuery = "INSERT INTO `game`( `first_state`, `comment`,game_length )" \
+                  " VALUES ( %s,%s,%s); "
 
-    cursor.execute(insertQuery,(str(firstStateId),comment))
+    cursor.execute(insertQuery,(str(firstStateId),comment,str(len(listaTrans))))
     gameId = int(cursor.lastrowid)
     print 'La game id es ',gameId
     #edit first transition gameId
@@ -154,10 +154,10 @@ Insert transition into DB and return the STATE_ID given for this transition
 Transition consist of Terrain, Troops and action
 """
 def saveTransitionToDb(cursor,transition,gameId,orderInGame):
-    query = "INSERT INTO `state` (`json`, `game_id`,`order_in_game`) VALUES (%s, %s,%s ) ; "
+    query = "INSERT INTO `state` (`json`, `game_id`,`order_in_game`,`terminal`) VALUES (%s, %s,%s, %s ) ; "
 
 
-    cursor.execute(query,(json.dumps(transition),str(gameId),str(orderInGame)))
+    cursor.execute(query,(json.dumps(transition),str(gameId),str(orderInGame),str(transition['next_terminal'])))
     idState = int(cursor.lastrowid)
     return idState
 

@@ -20,25 +20,38 @@ import numpy as np
 from tools.database import getNStates
 from tools.model import doTransition, calcReward, getTurnFromState
 
-
-class randomAgent():
+class abstractAgent():
     def __init__(self):
+        self.randomProb = 0
+    def evalAction(self, state, action, turn):
+        raise NotImplemented
+    #The default case is not used. This is used to train one step at the time
+    def observeTransition(self,jsonState):
+        pass
+    def saveModel(self):
+        pass
+    #Load should make the calling instance a exact copy of the saved model not return the saved model
+    def loadModel(self,filename):
+        pass
+
+class randomAgent(abstractAgent):
+    def __init__(self):
+        abstractAgent.__init__(self)
         self.randomProb = 1.0
-    def evalAction(self,state,action,turn):
-        return 0
 
 # Send agresive evaluation. Always try to attack
 # If action type == 1 is an attack then eval to 1 else eval to 0
-class agresiveAgent():
+class agresiveAgent(abstractAgent):
     def __init__(self):
+        abstractAgent.__init__(self)
         self.randomProb = 0
         pass
     def evalAction(self, state, action,turn):
         return -1 * (action['action_type'])
 
-class neuralTD1Agent():
+class neuralTD1Agent(abstractAgent):
     def __init__(self,inputLength,hidenUnits):
-
+        abstractAgent.__init__(self)
         self.randomProb = 0
 
         #input lenghth
@@ -47,9 +60,9 @@ class neuralTD1Agent():
         self.hiddenUnits = hidenUnits
 
         #Learning rate (like in gradient descent )
-        self.alpha = 0.2
+        self.alpha = 0.4
 
-        #Discount factor of the model = 1 so its not explicitly included in the ecuations
+        self.discountFactor = 1
 
         #lambda for update elegibility traces
         self.parlambda = 0.9
@@ -61,6 +74,9 @@ class neuralTD1Agent():
         # elegibility traces (used for training )
         self.e_InHide = np.zeros((self.hiddenUnits,self.inputLength+1))
         self.e_HideOut = np.zeros((1,self.hiddenUnits+1))
+
+        #N of trained json states used
+        self.timesTrained = 0
 
 
 
@@ -113,6 +129,10 @@ class neuralTD1Agent():
         else:
             return -1.0 * costForRed
 
+    def observeTransition(self,jsonState):
+        self.trainOneStep(jsonState)
+        self.timesTrained += 1
+
     def eval(self,stateArray):
 
         inputWithBias = np.append(stateArray,1).reshape(self.inputLength+1,1)
@@ -132,7 +152,7 @@ class neuralTD1Agent():
             realOutput = reward
         #use target = reward + Val(nextState)
         else:
-            realOutput = reward + self.eval(nextStateArray)
+            realOutput = reward + self.discountFactor*self.eval(nextStateArray)
 
         expectedOut = self.eval(stateArray)
 
@@ -155,70 +175,85 @@ class neuralTD1Agent():
 
         pass
 
-    def trainBatchN(self,cursor,numberOfStatesToTrain):
+    """
+    This jsonState must have an asocieated action otherwise it will make an error
+    """
+    def trainOneStep(self,jsonState):
+        usedAction = jsonState['Action']
+        jsonNext = doTransition(jsonState, usedAction)
+        turn = getTurnFromState(jsonState)
+        reward = calcReward(jsonState, usedAction, jsonNext, turn)
+
+        arrayCurrent = self.toInput(jsonState)
+        arrayNext = self.toInput(jsonNext)
+        # See if states is almost endGame
+        if jsonState['next_terminal'] != 0:
+            self.backpropagate(arrayCurrent, arrayNext, reward, True)
+        else:
+            self.backpropagate(arrayCurrent, arrayNext, reward, False)
+
+    def trainBatchN(self,cursor,numberOfStatesToTrain,justTerminal=False):
 
         #get N states as Json
         start = time.clock()
         print "Getting training samples "
-        listaJsonStates = getNStates(numberOfStatesToTrain, cursor,nthreads=10)
+
+        # Special query to get only terminal states
+        if justTerminal:
+            query = "SELECT `current_state_id` from `state` WHERE `current_state_id` = 1 ORDER BY RAND() LIMIT %s ;"
+            listaJsonStates = getNStates(numberOfStatesToTrain,cursor,query = query,nthreads=10)
+        else:
+            listaJsonStates = getNStates(numberOfStatesToTrain, cursor, nthreads=10)
+
         print "Training samples ready it took ",time.clock()-start
 
 
         start = time.clock()
         print "Training started "
         for jsonState in listaJsonStates:
-            usedAction = jsonState['Action']
-            jsonNext = doTransition(jsonState, usedAction)
-            turn = getTurnFromState(jsonState)
-            reward = calcReward(jsonState, usedAction, jsonNext, turn)
+            self.trainOneStep(jsonState)
 
-            arrayCurrent = self.toInput(jsonState)
-            arrayNext = self.toInput(jsonNext)
-            #See if states is almost endGame
-            if jsonState['next_terminal'] != 0:
-                self.backpropagate(arrayCurrent,arrayNext,reward,True)
-            else:
-                self.backpropagate(arrayCurrent, arrayNext, reward, False)
         end = time.clock()
         print "Model trained in ", end - start, " trained with ", trainingSamples
         print "Average time by train sample ", (end - start) * 1.0 / trainingSamples
+    def saveModel(self):
+        #Here should be somekind of parse of the parameters to make name = str(parameter) + str(date)
+        name = "Td1 NoReward JUSTTERMINAL LR 04 hd" + str(self.hiddenUnits) + " trainedStates " + str(
+            self.timesTrained) + " date " + datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y").replace(".",
+                                                                                                           " ").replace(
+            ":", " ")
+        output = open(name + '.pkl', 'wb')
+        pickle.dump(self, output, -1)
 
-    def train1Step(self,currentState,reward,nextState,terminal):
-        arrayCurrent = self.toInput(currentState)
-        arrayNext = self.toInput(nextState)
-
-        self.backpropagate(arrayCurrent, arrayNext, reward, terminal)
-
-
-def loadNNTD1(filepath):
+#Do something more adaptable
+def loadModel(filepath):
     output = open(filepath, 'rb')
-    objecttNN = pickle.load(output)
+    model = pickle.load(output)
+    if isinstance(model,neuralTD1Agent):
+        try:
+            model.timesTrained = model.timesTrained + 0
+        except:
+            model.timesTrained = 0
     output.close()
-    return objecttNN
+    return model
 
 if __name__ == "__main__":
     #Start database conection
     db = MySQLdb.connect("200.9.100.170", "bayes", "yesbayesyes", "bayes")
     cursor = db.cursor (MySQLdb.cursors.DictCursor)
 
-    hidenUnits = 50
-    #Set up game inputs and hiden layers
-    nnAgent = neuralTD1Agent(3042, hidenUnits)
 
-    trainingSamples = 1000
+    #Set up game inputs and hiden layers
+    hidenUnits = 100
+    trainingSamples = 10000
+    nnAgent = neuralTD1Agent(3042, hidenUnits)
 
 
     #Train with N states
-    nnAgent.trainBatchN(cursor, trainingSamples)
-
-    #Test in 10 games again random heuristic
-
-
+    nnAgent.trainBatchN(cursor, trainingSamples,justTerminal=True)
 
     # Save Model
-    name = "ModeloTD1 hd"+str(hidenUnits)+" samples "+str(trainingSamples)+" date "+datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y").replace(".", " ").replace(":", " ")
-    output = open(name + '.pkl', 'wb')
-    pickle.dump(nnAgent, output, -1)
+    nnAgent.saveModel()
 
     cursor.close()
     db.commit()

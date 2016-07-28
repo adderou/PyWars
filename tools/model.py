@@ -3,6 +3,7 @@ from copy import deepcopy
 import units
 from map import Tile
 
+
 def getTurnFromState(jsonState):
     usedAction = jsonState['Action']
     return [troop for troop in (jsonState['Troops'][0] + jsonState['Troops'][1]) if troop['x'] == usedAction['Xi'] and troop['y'] == usedAction['Yi']][0]['Team']
@@ -111,7 +112,7 @@ def calcReward(state,action,nextState,currentTurn):
 
     lostGame = 1
     win = 0
-    livingPenalty = 0.2
+    livingPenalty = 0
 
     if len(nextState["Troops"][aly]) == 0:
         return lostGame

@@ -3,7 +3,7 @@ import heapq
 import random
 import MySQLdb
 from batleStub import virtualBattle
-from tools.agent import agresiveAgent, randomAgent
+from tools.agent import agresiveAgent, randomAgent, loadModel, neuralTD1Agent
 from tools.database import getRandomGamesDb, saveGameToDb, getNStates, getStateFromId
 from tools.model import doTransition, calcReward, checkTerminal, getTurnFromState, getAllPosibleActions
 from tools.visualization import showGameScroll, showTransition, showActionsAgent
@@ -89,6 +89,10 @@ def gameLoop(baseBattle, initialState, agentRed,agentBlue,whoStart, store=True,c
 
             #append transition to game
             game.append(state)
+
+            #Use this transition to update agent
+            agent.observeTransition(state)
+
             state = nextState
             baseBattle.setGameState(state)
 
@@ -166,38 +170,48 @@ def testAgentRed(agentRed,agentBlue,nGames=40):
     print "Draws ",notEnded
     print ""
 
-def analisisRedAgent(agentToTest,cursor):
-    #test agent vs agresive blue
-    agresiveBlue = agresiveAgent()
-    testAgentRed(agentToTest, agresiveBlue,40)
+def analisisRedAgent(agentToTest,cursor,battleTest=True):
+    if battleTest:
+        #test agent vs agresive blue
+        agresiveBlue = agresiveAgent()
+        testAgentRed(agentToTest, agresiveBlue,40)
 
-    # test agent vs random blue
-    blue = randomAgent()
-    testAgentRed(agentToTest, blue)
+        # test agent vs random blue
+        blue = randomAgent()
+        testAgentRed(agentToTest, blue)
 
-    state = getNStates(1, cursor)[0]
-    showActionsAgent(state, agentToTest, 0)
+    #Test with a series of know cases
+    testCases = [161304,263315]
+
+    for idState in testCases:
+        testState1 = getStateFromId(idState,cursor)
+        showActionsAgent(testState1, agentToTest, 0)
 
 if __name__ == '__main__':
-
-
     db = db = MySQLdb.connect("200.9.100.170", "bayes", "yesbayesyes", "bayes")
     cursor = db.cursor()
     cursor = db.cursor (MySQLdb.cursors.DictCursor)
 
-
+    #Variables
+    #Mode of this program
     # mode = "showRandomGames"
     # mode = "showBattle"
     mode='testAgent'
+    # mode = 'IncrementalTraining'
     # mode = "generateRandomGames"
 
+    #Agent settings
+
     agentRed = agresiveAgent()
-    agresiveBlue = agresiveAgent()
+    agentRed = loadModel("v1 20070.pkl")
+    agentBlue = agresiveAgent()
     # agresiveBlue = loadNNTD1("tools/modelo TD1 500 iteraciones.pkl")
 
+    #Do that thing
+
     if mode == "generateRandomGames":
-        for i in range(1000):
-            game = generateGame(cursor,agentRed,agresiveBlue, True)
+        for i in range(10000):
+            game = generateGame(cursor, agentRed, agentBlue, True)
             print "Game generation ended ",len(game)," transitions"
 
     elif mode == "showRandomGames":
@@ -205,13 +219,29 @@ if __name__ == '__main__':
         #If goes too slow use for state in game : showTransition(state) JUST FOR BETTER VISUALIZATION
         for game in gameList:
             showGameScroll(game)
+    elif mode == 'IncrementalTraining':
+        trainingGames = 100
+        saveRedAgent = True
+        #Here it uses only agent Red to maximize learning.
+        for i in range(trainingGames):
+            game = generateGame(cursor, agentRed, agentRed, store=False)
+            print "Game generation ended ",len(game)," transitions"
+        print "Incremental training seasion ended after "+str(trainingGames)+" now saving results"
+        # Saving Red Model
+        if saveRedAgent:
+            agentRed.saveModel()
     elif mode == "showBattle":
-        game = generateGame(cursor, agentRed, agresiveBlue, False)
+        game = generateGame(cursor, agentRed, agentBlue, False)
         showGameScroll(game)
     elif mode == 'testAgent':
         print "Testing agent Red "
-        analisisRedAgent(agentRed,cursor)
+        analisisRedAgent(agentRed,cursor,battleTest=True)
 
+
+
+
+
+    #Close connection
     cursor.close()
     db.commit()
     db.close()

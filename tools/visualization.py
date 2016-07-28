@@ -20,7 +20,7 @@ class gameSlider(object):
         self.data = imageList
         self.ind = 0
         self.maxImg = len(imageList)
-        self.im = ax.imshow(self.data[self.ind][0])
+        self.im = ax.imshow(showTransition(self.data[self.ind],True)[0])
         self.update()
 
     def onscroll(self, event):
@@ -32,8 +32,9 @@ class gameSlider(object):
         self.update()
 
     def update(self):
-        self.im.set_data(self.data[self.ind][0])
-        self.ax.set_title(self.data[self.ind][1]+'slice %s' % self.ind)
+        out = showTransition(self.data[self.ind],True)
+        self.im.set_data(out[0])
+        self.ax.set_title(out[1]+'slice %s' % self.ind)
         self.im.axes.figure.canvas.draw()
 
 
@@ -149,7 +150,7 @@ def showTransition(transition,dontShow=False):
 def showGameScroll(gameList):
 
 
-    imageList = [showTransition(state, True) for state in gameList]
+    imageList = [state for state in gameList]
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
@@ -188,7 +189,7 @@ def showActionsAgent(state,agent,turn):
     actionsValue.sort()
 
     for elem in actionsValue:
-        print "Value ",elem[0]," ",elem[1]," ",elem[2]
+        print "Value ",elem[0]," ",elem[1]
 
     showTransition(state)
     print "Test"
