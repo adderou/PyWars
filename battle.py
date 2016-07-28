@@ -85,11 +85,11 @@ class Battle(PygameBaseClass):
 
 
     @staticmethod
-    def randomMap():
+    def randomMap(fair=False):
         baseMap = Battle.generateRandomBaseMap()
         numPlayers = 2
         initialFunds = 0
-        unitString, used = Battle.generateUnits(baseMap)
+        unitString, used = Battle.generateUnits(baseMap,fair)
         finalMap = Battle.populateMap(baseMap,used)
         map = Battle.generateMapString(finalMap)
         units = Battle.loadUnits(unitString)
@@ -188,16 +188,23 @@ class Battle(PygameBaseClass):
 
 
     @staticmethod
-    def generateUnits(map):
+    def generateUnits(map, fair=False):
         unitString = ""
         team1Size = random.randint(1,3)
-        team2Size = random.randint(1,3)
+        if not(fair):
+            team2Size = random.randint(1,3)
+        else:
+            team2Size = team1Size
         used = []
+        # Positions
         x = random.randint(0, 9)
         y = random.randint(0, 15)
         d = 2
+        #If it's fair, the types of units must be the same.
+        firstUnitTypes = []
         while team1Size>0:
             unitType = random.randint(1,6)
+            firstUnitTypes.append(unitType);
             x = random.randint(max(0, x - d), min(9, x + d))
             y = random.randint(max(0, y - d), min(15, y + d))
             while ((x,y) in used):
@@ -207,7 +214,11 @@ class Battle(PygameBaseClass):
             unitString += str(0)+" "+str(unitType)+" "+str(x)+","+str(y)+"\n"
             team1Size-=1
         while team2Size > 0:
-            unitType = random.randint(1, 6)
+            # if it's fair, we get a random type from the types used by team 1.
+            if not(fair):
+                unitType = random.randint(1, 6)
+            else:
+                unitType = firstUnitTypes.pop(random.randint(1,6))
             x = random.randint(max(0, x - d), min(9, x + d))
             y = random.randint(max(0, y - d), min(15, y + d))
             while ((x,y) in used):
