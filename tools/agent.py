@@ -42,13 +42,16 @@ class abstractAgent():
         pass
     # Log action in human-readable text
     def actionToString(self,action,player):
-        print "Jugador", player, "Mueve tropa en",action["xi"],",",action["xf"],\
-            "a la posición",action["xf"],",",action["yf"],
+        if action == None:
+            print "Jugador",player,"termina su turno."
+            return
+        print "Jugador", player, "Mueve tropa en (",action["Xi"],",",action["Yi"],\
+            ") a la posición (",action["Xf"],",",action["Yf"],")",
         #If attack
         if (action["action_type"] == 1):
-            print "y ataca a la posición",action["xa"],",",action["ya"],"."
+            print "y ataca a la posición (",action["Xa"],",",action["Ya"],")."
         else :
-            print "Y no ataca."
+            print "y no ataca."
 
 class humanAgent(abstractAgent):
     def __init__(self):
@@ -57,21 +60,23 @@ class humanAgent(abstractAgent):
         self.isHuman = True
 
     #Selects a move
-    def selectMove(self,actionList):
+    def selectMove(self,actionList,player):
         selected = -1
-        while selected < 0 or selected >= len(actionList)  or selected != "X":
+        while (selected < 1 or selected > len(actionList)):
             # Pass
-            if selected == "X":
+            if selected == 0:
                 return None
-            print "Selecciona un movimiento, o ingresa X si quieres pasar:"
+            print "Selecciona un movimiento, o ingresa 0 si quieres pasar:"
             i = 1
             for action in actionList:
-                print i, ")", self.actionToString(action)
-                i = i+1
-            selected = input();
-            if selected < 0 or selected >= len(actionList):
+                print "------",i, ")",
+                self.actionToString(action,player)
+                i = i + 1
+            selected = input()
+            if selected < 0 or selected > len(actionList):
                 print "Error: Ingresa un número entre 1 y",len(actionList),"."
-        return actionList[selected]
+
+        return actionList[selected-1]
 
 
 class randomAgent(abstractAgent):

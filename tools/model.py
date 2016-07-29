@@ -1,7 +1,10 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 from copy import deepcopy
 
-import units
-from map import Tile
+import units2
+from map2 import Tile
 
 
 def getTurnFromState(jsonState):
@@ -16,7 +19,7 @@ ACTION_TYPE = 0 Just Move
 ACTION_TYPE = 1 Move and Attack
 
 """
-def doTransition(state,action):
+def doTransition(state,action,consoleMode=False):
 
     #after the action go to wait (troop["Can_move"] = 0)
     #if you just wait move from Xi to Xf = Xi
@@ -64,8 +67,8 @@ def doTransition(state,action):
         defEnv = Tile.defenseValues[terrEnemy['Terrain_type']]
 
         #Crear tropa simulada desde tropa jason
-        attacker =  units.troopFromJson(troopA)
-        defender = units.troopFromJson(troopB)
+        attacker =  units2.troopFromJson(troopA)
+        defender = units2.troopFromJson(troopB)
 
         #realiza calculo de ataque
 
@@ -75,16 +78,24 @@ def doTransition(state,action):
 
         #calculo damage defender
         defender.health -= attacker.getAttackDamage(defender, defEnv)
+        if consoleMode:
+            print "El HP de",defender.type, "del jugador", 1-current_team,"es",defender.health
         #Si hp defensor es 0 eliminar de tropas
         if defender.health <= 0:
+            if consoleMode:
+                print defender.type,"del jugador",(1-current_team),"ha sido destruído."
             state["Troops"][1-current_team].remove(troopB)
         else:
             troopB["HP"] = defender.health
             if not attacker.isArtilleryUnit and not defender.isArtilleryUnit:
                 attacker.health -= defender.getRetaliatoryDamage(attacker, atkEnv)
+                if consoleMode:
+                    print "El HP de", attacker.type, "del jugador", current_team, "es", attacker.health
                 #si hp de atacante es cero eliminar de troops
                 if attacker.health <= 0:
                     state["Troops"][current_team].remove(troopA)
+                    if consoleMode:
+                        print defender.type, "del jugador", (1 - current_team), "ha sido destruído."
                 else:
                     troopA["HP"] = attacker.health
 

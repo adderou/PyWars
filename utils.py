@@ -79,28 +79,26 @@ def gameLoop(baseBattle, initialState, agentRed,agentBlue,whoStart, store=True,c
                     bestAction = random.choice(accionesValidas)
                     bestValue = -1
             else:
-                bestAction = agent.selectMove(accionesValidas)
+                bestAction = agent.selectMove(accionesValidas,activeTeam)
+
+            #if consolemode, print info about
+            if consoleMode:
+                #Print information about the action.
+                agent.actionToString(bestAction,activeTeam)
+
             #If move is none, skip turn
             if bestAction == None:
                 break
 
             # Do the transition
-            nextState = doTransition(state, bestAction)
+            nextState = doTransition(state, bestAction,consoleMode)
             reward = calcReward(state, bestAction, nextState, activeTeam)
 
-            #if consolemode, print info about
-            if consoleMode:
-                #Look for troop
-                currentTroop = None
-                #Print information about the action.
-                agent.actionToString(currentTroop,bestAction,activeTeam)
 
             #place if next state is win,lose or non terminal
             state['next_terminal'] = checkTerminal(nextState, activeTeam)
             #set Action to state
             state['Action'] = bestAction
-
-            # showTransition(state)
 
             #append transition to game
             game.append(state)
@@ -114,6 +112,7 @@ def gameLoop(baseBattle, initialState, agentRed,agentBlue,whoStart, store=True,c
             #Calculate new state actions
             accionesValidas = getAllPosibleActions(baseBattle, state, activeTeam)
 
+            showTransition(state)
 
             # maybe we win but we havent move all
             if checkTerminal(state, activeTeam) != 0:
@@ -133,7 +132,6 @@ def gameLoop(baseBattle, initialState, agentRed,agentBlue,whoStart, store=True,c
                 break
 
     #place terminal in last transition
-    if not consoleMode:
         if store:
             #open db and store game
              saveGameToDb(cursor, game, 'GameComment')
@@ -142,7 +140,7 @@ def gameLoop(baseBattle, initialState, agentRed,agentBlue,whoStart, store=True,c
 
 
 
-def generateGame(cursor,agentRed,agentBlue, store=True,fair=False):
+def generateGame(cursor,agentRed,agentBlue, store=True,fair=False, consoleMode=False):
 
     #Generate map
     batalla = virtualBattle.randomMap(fair)
@@ -151,7 +149,7 @@ def generateGame(cursor,agentRed,agentBlue, store=True,fair=False):
     initialState = batalla.getGameState()
 
     whoStart = random.randint(0,1)
-    game = gameLoop(batalla,initialState,agentRed,agentBlue,whoStart,store=store,cursor=cursor)
+    game = gameLoop(batalla,initialState,agentRed,agentBlue,whoStart,store=store,cursor=cursor,consoleMode=consoleMode)
 
     # print "Game generation ended ",len(game)," transitions"
     return game

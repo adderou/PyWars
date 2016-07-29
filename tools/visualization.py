@@ -10,6 +10,7 @@ from tools.database import jointCellTypes
 
 #Convencciones EL TROOPS[0] ES RED Y EL TROOPS[1] ES BLUE
 from tools.model import getAllPosibleActions
+from matplotlib.pyplot import plot, draw, show
 
 
 class gameSlider(object):
@@ -144,7 +145,7 @@ def showTransition(transition,dontShow=False):
         return (base,stringOut)
     plt.suptitle(stringOut)
     plt.imshow(base)
-    plt.show()
+    draw()
 
 
 def showGameScroll(gameList):

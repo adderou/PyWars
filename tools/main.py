@@ -10,23 +10,22 @@ def set_player(number):
         print "1) Humano"
         print "2) Computador - Juego Aleatorio"
         print "3) Computador - Juego Ofensivo Aleatorio"
-        print "4) Computador - Juego Red Neuronal"
+        print "Pronto ) Computador - Juego Red Neuronal"
         p = input()
         if (p not in [1,2,3]):
-            print "Error, ingresa un número del 1 al 4"
+            print "Error, ingresa un número del 1 al 3"
     return p
 
-agents = [agent.humanAgent(),agent.randomAgent(),agent.agresiveAgent(), agent.neuralTD1Agent()]
+agents = [agent.humanAgent(),agent.randomAgent(),agent.agresiveAgent()]
 
-def __main__():
+if __name__ == "__main__":
     print "Bienvenido a PyWars"
     print "---------------------"
     p1 = set_player(1) - 1
     p2 = set_player(2) - 1
-    agent1 = agents(p1)
-    agent2 = agents(p2)
-    utils.gameLoop()
-
+    agent1 = agents[p1]
+    agent2 = agents[p2]
+    utils.generateGame(None,agent1,agent2,fair=True,store=False,consoleMode=True)
 
 
 
