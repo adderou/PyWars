@@ -13,6 +13,7 @@ from tools.database import jointCellTypes
 #Convencciones EL TROOPS[0] ES RED Y EL TROOPS[1] ES BLUE
 from tools.model import getAllPosibleActions
 from matplotlib.pyplot import plot, draw, show
+import time
 
 
 class gameSlider(object):
@@ -157,6 +158,7 @@ def plotInAnotherProcess(string,image,actionN=None):
         plt.suptitle(string)
     plt.imshow(image)
     plt.show()
+
 
 def showGameScroll(gameList):
 

@@ -27,7 +27,7 @@ def createTrainedNeuralAgent():
 
 
     #Set up game inputs and hiden layers
-    hidenUnits = 1000
+    hidenUnits = 100
     trainingSamples = 30000
     nnAgent = agent.neuralTD1Agent(3042, hidenUnits)
 
