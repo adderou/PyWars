@@ -61,12 +61,12 @@ class humanAgent(abstractAgent):
         self.isHuman = True
 
 
-    def getTroopFromCoords(self,troops,xCoord,yCoord,position):
-        for troop in troops:
+    def getTroopFromCoords(self,troops,player,xCoord,yCoord,position):
+        for troop in troops[player]:
             if (troop["x"],troop["y"]) == (xCoord,yCoord):
                 return {"x":troop["x"],"y":troop["y"],"name":units2.troopClassTypeDict[troop["Troop"]].type, "pos":position,"HP":troop["HP"]}
 
-    def getTroopList(self,troops,actionList):
+    def getTroopList(self,troops,player,actionList):
         troopList = []
         lastCoordVisited = (-1,-1)
         i = -1
@@ -74,7 +74,7 @@ class humanAgent(abstractAgent):
             i = i+1
             actualCoords = (action["Xi"],action["Yi"]);
             if  actualCoords != lastCoordVisited:
-                troopList.append(self.getTroopFromCoords(troops,action["Xi"], action["Yi"],i))
+                troopList.append(self.getTroopFromCoords(troops,player,action["Xi"], action["Yi"],i))
                 lastCoordVisited = actualCoords
             else:
                 continue
@@ -106,13 +106,13 @@ class humanAgent(abstractAgent):
     #Selects a move
     def selectMove(self,troops,actionList,player):
         selected = -1
-        troopList = self.getTroopList(troops,actionList)
+        troopList = self.getTroopList(troops,player,actionList)
         # Select Troop
         while (selected < 1 or selected > len(troopList)):
             # Pass
             if selected == 0:
                 return None
-            print "Selecciona una tropa para mover, o ingresa 0 si quieres pasar:"
+            print "Jugador",player,": Selecciona una tropa para mover, o ingresa 0 si quieres pasar:"
             i = 1
             for troop in troopList:
                 print "------",i, ")",troop["name"]," ( HP = ",troop["HP"],") ubicada en (",troop["x"],",",troop["y"],")"
@@ -145,7 +145,7 @@ class humanAgent(abstractAgent):
         xf = selectedMove["x"]
         yf = selectedMove["y"]
         attacksList = self.getAttacksList(actionList,moveStartIndex,xi,yi,xf,yf)
-        if attacksList == 1:
+        if len(attacksList) == 1:
             print "No es posible atacar desde acá, así que se moverá a esta posición."
             return actionList[attacksList[0]["pos"]]
         else:
@@ -159,7 +159,8 @@ class humanAgent(abstractAgent):
                 for attack in attacksList:
                     print "------", i, ")",
                     if attack["attack"] == 1:
-                        print "Atacar a la posición (",attack["x"],",",attack["y"],")."
+                        attackedTroop = self.getTroopFromCoords(troops, 1 - player, attack["x"], attack["y"], -1)
+                        print "Atacar al",attackedTroop["name"],"( HP = ",attackedTroop["HP"],") enemigo en la posición (",attack["x"],",",attack["y"],")"
                     else:
                         print "No atacar."
                     i = i + 1

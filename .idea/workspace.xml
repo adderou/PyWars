@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="1665a526-bde9-4903-8b7c-a62e006d1d19" name="Default" comment="">
+    <list default="true" id="1665a526-bde9-4903-8b7c-a62e006d1d19" name="Default" comment="Selección de movimiento es más usable">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tools/agent.py" afterPath="$PROJECT_DIR$/tools/agent.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tools/main.py" afterPath="$PROJECT_DIR$/tools/main.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tools/model.py" afterPath="$PROJECT_DIR$/tools/model.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/utils.py" afterPath="$PROJECT_DIR$/utils.py" />
     </list>
     <ignored path="PyWars.iws" />
@@ -22,7 +20,7 @@
   <component name="CoverageDataManager">
     <SUITE FILE_PATH="coverage/PyWars$CosadelAndres.coverage" NAME="CosadelAndres Coverage Results" MODIFIED="1469773522726" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/PyWars$agent.coverage" NAME="agent Coverage Results" MODIFIED="1469772686244" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tools" />
-    <SUITE FILE_PATH="coverage/PyWars$CLI_PyWars.coverage" NAME="CLI_PyWars Coverage Results" MODIFIED="1469826651981" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/" />
+    <SUITE FILE_PATH="coverage/PyWars$CLI_PyWars.coverage" NAME="CLI_PyWars Coverage Results" MODIFIED="1469827852556" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/" />
     <SUITE FILE_PATH="coverage/PyWars$main.coverage" NAME="main Coverage Results" MODIFIED="1469773532144" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tools" />
     <SUITE FILE_PATH="coverage/PyWars$testNN.coverage" NAME="testNN Coverage Results" MODIFIED="1469818991969" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tools" />
     <SUITE FILE_PATH="coverage/PyWars$units2.coverage" NAME="units2 Coverage Results" MODIFIED="1469818043088" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
@@ -84,11 +82,11 @@
       <file leaf-file-name="agent.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/tools/agent.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="384">
-              <caret line="149" column="49" selection-start-line="149" selection-start-column="49" selection-end-line="149" selection-end-column="49" />
+            <state relative-caret-position="342">
+              <caret line="114" column="38" selection-start-line="114" selection-start-column="38" selection-end-line="114" selection-end-column="38" />
               <folding>
                 <element signature="e#365#380#0" expanded="true" />
-                <marker date="1469826645583" expanded="true" signature="13081:13173" ph="SELECT `curr... state" />
+                <marker date="1469827849927" expanded="true" signature="13322:13414" ph="SELECT `curr... state" />
               </folding>
             </state>
           </provider>
@@ -134,10 +132,10 @@
       <file leaf-file-name="utils.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/utils.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="495">
-              <caret line="41" column="22" selection-start-line="41" selection-start-column="21" selection-end-line="41" selection-end-column="22" />
+            <state relative-caret-position="405">
+              <caret line="158" column="8" selection-start-line="158" selection-start-column="8" selection-end-line="158" selection-end-column="8" />
               <folding>
-                <marker date="1469822035815" expanded="true" signature="47:48" ph="..." />
+                <marker date="1469827551699" expanded="true" signature="47:48" ph="..." />
               </folding>
             </state>
           </provider>
@@ -896,7 +894,14 @@
       <option name="project" value="LOCAL" />
       <updated>1469743860941</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="Selección de movimiento es más usable">
+      <created>1469826820050</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1469826820050</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="TodoView">
@@ -956,7 +961,8 @@
     <MESSAGE value="Arreglada clase map" />
     <MESSAGE value="Arreglados mapas random" />
     <MESSAGE value="Creados nuevos tipos de random. Si se quiere un random más justo, basta con llamar randomMap(fair=True)" />
-    <option name="LAST_COMMIT_MESSAGE" value="Creados nuevos tipos de random. Si se quiere un random más justo, basta con llamar randomMap(fair=True)" />
+    <MESSAGE value="Selección de movimiento es más usable" />
+    <option name="LAST_COMMIT_MESSAGE" value="Selección de movimiento es más usable" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1324,21 +1330,21 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/utils.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="495">
-          <caret line="41" column="22" selection-start-line="41" selection-start-column="21" selection-end-line="41" selection-end-column="22" />
+        <state relative-caret-position="405">
+          <caret line="158" column="8" selection-start-line="158" selection-start-column="8" selection-end-line="158" selection-end-column="8" />
           <folding>
-            <marker date="1469822035815" expanded="true" signature="47:48" ph="..." />
+            <marker date="1469827551699" expanded="true" signature="47:48" ph="..." />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/tools/agent.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="384">
-          <caret line="149" column="49" selection-start-line="149" selection-start-column="49" selection-end-line="149" selection-end-column="49" />
+        <state relative-caret-position="342">
+          <caret line="114" column="38" selection-start-line="114" selection-start-column="38" selection-end-line="114" selection-end-column="38" />
           <folding>
             <element signature="e#365#380#0" expanded="true" />
-            <marker date="1469826645583" expanded="true" signature="13081:13173" ph="SELECT `curr... state" />
+            <marker date="1469827849927" expanded="true" signature="13322:13414" ph="SELECT `curr... state" />
           </folding>
         </state>
       </provider>

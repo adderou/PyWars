@@ -98,7 +98,7 @@ def gameLoop(baseBattle, initialState, agentRed,agentBlue,whoStart, store=True,c
                     bestValue = -1
             else:
                 #Agent is human
-                bestAction = agent.selectMove(state["Troops"][activeTeam], accionesValidas,activeTeam)
+                bestAction = agent.selectMove(state["Troops"], accionesValidas,activeTeam)
                 bestValue = 0
 
             # set Action to state
@@ -154,9 +154,9 @@ def gameLoop(baseBattle, initialState, agentRed,agentBlue,whoStart, store=True,c
                 break
 
     #place terminal in last transition
-        if store:
-            #open db and store game
-             saveGameToDb(cursor, game, 'GameComment')
+    if store:
+        #open db and store game
+        saveGameToDb(cursor, game, 'GameComment')
 
     winner = activeTeam if checkTerminal(state,activeTeam) == 1 else 1-activeTeam
     print "El juego ha terminado. El ganador es el equipo",winner,"!"
