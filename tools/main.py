@@ -20,9 +20,8 @@ def set_player(number):
         print ""
     return p
 
-agents = [agent.humanAgent,agent.randomAgent,agent.agresiveAgent] # Neural Network Missing
-
-def trainNeuralAgent(agentList):
+def createTrainedNeuralAgent():
+    print "Entrenando Agente"
     db = MySQLdb.connect("200.9.100.170", "bayes", "yesbayesyes", "bayes")
     cursor = db.cursor (MySQLdb.cursors.DictCursor)
 
@@ -42,11 +41,11 @@ def trainNeuralAgent(agentList):
     cursor.close()
     db.commit()
     db.close()
-    agentList.append(lambda : nnAgent)
+    return nnAgent
+
+agents = [agent.humanAgent,agent.randomAgent,agent.agresiveAgent,createTrainedNeuralAgent] # Neural Network Missing
 
 if __name__ == "__main__":
-    print "Entrenando agente"
-    trainNeuralAgent(agents)
     print "Bienvenido a PyWars"
     print "---------------------"
     p1 = set_player(1) - 1
