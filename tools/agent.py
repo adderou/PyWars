@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 #Por hacer
 #Mostrar acciones y su valor
 
@@ -23,6 +26,10 @@ from tools.model import doTransition, calcReward, getTurnFromState
 class abstractAgent():
     def __init__(self):
         self.randomProb = 0
+        self.isHuman = False
+    # Allows to preselect one move to use it in humanAgent.
+    def selectMove(self, actionList):
+        pass
     def evalAction(self, state, action, turn):
         raise NotImplemented
     #The default case is not used. This is used to train one step at the time
@@ -33,6 +40,39 @@ class abstractAgent():
     #Load should make the calling instance a exact copy of the saved model not return the saved model
     def loadModel(self,filename):
         pass
+    # Log action in human-readable text
+    def actionToString(self,action,player):
+        print "Jugador", player, "Mueve tropa en",action["xi"],",",action["xf"],\
+            "a la posición",action["xf"],",",action["yf"],
+        #If attack
+        if (action["action_type"] == 1):
+            print "y ataca a la posición",action["xa"],",",action["ya"],"."
+        else :
+            print "Y no ataca."
+
+class humanAgent(abstractAgent):
+    def __init__(self):
+        abstractAgent.__init__(self)
+        self.randomProb = 0
+        self.isHuman = True
+
+    #Selects a move
+    def selectMove(self,actionList):
+        selected = -1
+        while selected < 0 or selected >= len(actionList)  or selected != "X":
+            # Pass
+            if selected == "X":
+                return None
+            print "Selecciona un movimiento, o ingresa X si quieres pasar:"
+            i = 1
+            for action in actionList:
+                print i, ")", self.actionToString(action)
+                i = i+1
+            selected = input();
+            if selected < 0 or selected >= len(actionList):
+                print "Error: Ingresa un número entre 1 y",len(actionList),"."
+        return actionList[selected]
+
 
 class randomAgent(abstractAgent):
     def __init__(self):

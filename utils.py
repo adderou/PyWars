@@ -44,9 +44,9 @@ testGame = [
 
 
 #NOW RANDOM PROB IS inside agent behavior DEFAULT IS 0
-def gameLoop(baseBattle, initialState, agentRed,agentBlue,whoStart, store=True,cursor=None):
+def gameLoop(baseBattle, initialState, agentRed,agentBlue,whoStart, store=True,cursor=None, consoleMode=False):
 
-    #just to avoid infinite loops
+    #in console mode, just to avoid infinite loops
     maxIter = 100
     #get initial game state
     game = []
@@ -64,21 +64,35 @@ def gameLoop(baseBattle, initialState, agentRed,agentBlue,whoStart, store=True,c
         accionesValidas = getAllPosibleActions(baseBattle,state, activeTeam)
         while len(accionesValidas) != 0:
             heapAction = [] #The python heap keep TUPLES (value,action) sorted by value like a heap
-
-            #Random action or evaluation ?
-            randomNumber = random.random()
-            if randomNumber > agent.randomProb:
-                for action in accionesValidas:
-                    value = agent.evalAction(state, action,activeTeam)
-                    heapq.heappush(heapAction,(value,action))
-                bestValue, bestAction = heapq.heappop(heapAction)
-                # print "Best action to choose ",bestAction
+            #If agent is not human, select with AI
+            if not agent.isHuman:
+                #Random action or evaluation ?
+                randomNumber = random.random()
+                if randomNumber > agent.randomProb:
+                    for action in accionesValidas:
+                        value = agent.evalAction(state, action,activeTeam)
+                        heapq.heappush(heapAction,(value,action))
+                    bestValue, bestAction = heapq.heappop(heapAction)
+                    # print "Best action to choose ",bestAction
+                else:
+                    bestAction = random.choice(accionesValidas)
+                    bestValue = -1
             else:
-                bestAction = random.choice(accionesValidas)
-                bestValue = -1
+                bestAction = agent.selectMove(accionesValidas)
+            #If move is none, skip turn
+            if bestAction == None:
+                break
 
+            # Do the transition
             nextState = doTransition(state, bestAction)
             reward = calcReward(state, bestAction, nextState, activeTeam)
+
+            #if consolemode, print info about
+            if consoleMode:
+                #Look for troop
+                currentTroop = None
+                #Print information about the action.
+                agent.actionToString(currentTroop,bestAction,activeTeam)
 
             #place if next state is win,lose or non terminal
             state['next_terminal'] = checkTerminal(nextState, activeTeam)
@@ -110,16 +124,18 @@ def gameLoop(baseBattle, initialState, agentRed,agentBlue,whoStart, store=True,c
         activeTeam = 1-activeTeam
         baseBattle.activePlayer = baseBattle.teams[activeTeam]
 
-
-        maxIter -= 1
-        if maxIter == 0:
-            print "Maxima iteracion alcanzada saliendo"
-            break
+        # Count iterations for console mode.
+        if not consoleMode:
+            maxIter -= 1
+            if maxIter == 0:
+                print "Maxima iteracion alcanzada saliendo"
+                break
 
     #place terminal in last transition
-    if store:
-        #open db and store game
-        saveGameToDb(cursor, game, 'GameComment')
+    if not consoleMode:
+        if store:
+            #open db and store game
+             saveGameToDb(cursor, game, 'GameComment')
 
     return game
 
