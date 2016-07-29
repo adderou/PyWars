@@ -145,7 +145,7 @@ def showTransition(transition,dontShow=False):
         return (base,stringOut)
     plt.suptitle(stringOut)
     plt.imshow(base)
-    draw()
+    plt.show()
 
 
 def showGameScroll(gameList):

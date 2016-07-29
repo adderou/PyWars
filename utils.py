@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 # X hacia abajo Y hacia la derecha centrado en la esquina sup izq
 import heapq
 import random
@@ -7,6 +10,7 @@ from tools.agent import agresiveAgent, randomAgent, loadModel, neuralTD1Agent
 from tools.database import getRandomGamesDb, saveGameToDb, getNStates, getStateFromId
 from tools.model import doTransition, calcReward, checkTerminal, getTurnFromState, getAllPosibleActions
 from tools.visualization import showGameScroll, showTransition, showActionsAgent
+import units2
 
 testGame = [
                 {
@@ -42,6 +46,14 @@ testGame = [
             ]
 
 
+def showTroops(state,number):
+    number = number-1;
+    team = state['Troops'][number];
+    print "-- Tropas del equipo",number
+    for troop in team:
+        movable = "no movida" if troop["Can_move"] == 1 else "ya movida"
+        print "Tropa",movable,"del tipo",units2.troopClassTypeDict[troop["Troop"]].type,\
+            "ubicada en posición (",troop["x"],",",troop["y"],"), con HP =",troop["HP"],"."
 
 #NOW RANDOM PROB IS inside agent behavior DEFAULT IS 0
 def gameLoop(baseBattle, initialState, agentRed,agentBlue,whoStart, store=True,cursor=None, consoleMode=False):
@@ -63,6 +75,12 @@ def gameLoop(baseBattle, initialState, agentRed,agentBlue,whoStart, store=True,c
         agent = agentRed if activeTeam == 0 else agentBlue
         accionesValidas = getAllPosibleActions(baseBattle,state, activeTeam)
         while len(accionesValidas) != 0:
+
+            # Show positions of troops at start
+            if consoleMode:
+                showTroops(state, 1)
+                showTroops(state, 2)
+
             heapAction = [] #The python heap keep TUPLES (value,action) sorted by value like a heap
 
             #If agent is not human, select with AI
@@ -79,7 +97,18 @@ def gameLoop(baseBattle, initialState, agentRed,agentBlue,whoStart, store=True,c
                     bestAction = random.choice(accionesValidas)
                     bestValue = -1
             else:
+                #Agent is human
                 bestAction = agent.selectMove(accionesValidas,activeTeam)
+                bestValue = 0
+
+            # set Action to state
+            state['Action'] = bestAction
+
+            # append transition to game
+            game.append(state)
+
+            # Use this transition to update agent
+            agent.observeTransition(state)
 
             #if consolemode, print info about
             if consoleMode:
@@ -97,14 +126,6 @@ def gameLoop(baseBattle, initialState, agentRed,agentBlue,whoStart, store=True,c
 
             #place if next state is win,lose or non terminal
             state['next_terminal'] = checkTerminal(nextState, activeTeam)
-            #set Action to state
-            state['Action'] = bestAction
-
-            #append transition to game
-            game.append(state)
-
-            #Use this transition to update agent
-            agent.observeTransition(state)
 
             state = nextState
             baseBattle.setGameState(state)
@@ -112,9 +133,10 @@ def gameLoop(baseBattle, initialState, agentRed,agentBlue,whoStart, store=True,c
             #Calculate new state actions
             accionesValidas = getAllPosibleActions(baseBattle, state, activeTeam)
 
-            showTransition(state)
+            #Show transition in plot
+            #showTransition(state)
 
-            # maybe we win but we havent move all
+            # maybe we win but we havent move all yet
             if checkTerminal(state, activeTeam) != 0:
                 break
 
