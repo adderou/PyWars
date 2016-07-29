@@ -158,6 +158,8 @@ def gameLoop(baseBattle, initialState, agentRed,agentBlue,whoStart, store=True,c
             #open db and store game
              saveGameToDb(cursor, game, 'GameComment')
 
+    winner = activeTeam if checkTerminal(state,activeTeam) == 1 else 1-activeTeam
+    print "El juego ha terminado. El ganador es el equipo",winner,"!"
     return game
 
 
