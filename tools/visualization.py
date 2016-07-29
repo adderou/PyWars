@@ -1,3 +1,5 @@
+import multiprocessing
+
 import numpy as np
 import pylab as plt
 import skimage
@@ -39,7 +41,7 @@ class gameSlider(object):
         self.im.axes.figure.canvas.draw()
 
 
-def showTransition(transition,dontShow=False):
+def showTransition(transition,dontShow=False,actionN=None):
     rutaTiles = "tiles/"
     rutaTroops="units/"
     dictMap = {0:'WaterOpen.png',
@@ -143,10 +145,18 @@ def showTransition(transition,dontShow=False):
 
     if dontShow:
         return (base,stringOut)
-    plt.suptitle(stringOut)
-    plt.imshow(base)
-    plt.show()
 
+    job_for_another_core = multiprocessing.Process(target=plotInAnotherProcess, args=(stringOut,base,actionN))
+    job_for_another_core.start()
+
+
+def plotInAnotherProcess(string,image,actionN=None):
+    if actionN:
+        plt.suptitle("Action "+str(actionN)+" "+string)
+    else:
+        plt.suptitle(string)
+    plt.imshow(image)
+    plt.show()
 
 def showGameScroll(gameList):
 

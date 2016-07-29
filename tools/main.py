@@ -14,6 +14,8 @@ def set_player(number):
         p = input()
         if (p not in [1,2,3]):
             print "Error, ingresa un número del 1 al 3"
+        print ""
+        print ""
     return p
 
 agents = [agent.humanAgent(),agent.randomAgent(),agent.agresiveAgent()]
