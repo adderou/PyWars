@@ -277,6 +277,7 @@ def loadModel(filepath):
     model = pickle.load(output)
     if isinstance(model,neuralTD1Agent):
         try:
+            model.isHuman = False
             model.timesTrained = model.timesTrained + 0
         except:
             model.timesTrained = 0

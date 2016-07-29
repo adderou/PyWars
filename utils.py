@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # X hacia abajo Y hacia la derecha centrado en la esquina sup izq
+import copy
 import heapq
 import random
 import MySQLdb
@@ -54,12 +55,15 @@ def showTroops(state,number):
         movable = "no movida" if troop["Can_move"] == 1 else "ya movida"
         print "Tropa",movable,"del tipo",units2.troopClassTypeDict[troop["Troop"]].type,\
             "ubicada en posición (",troop["x"],",",troop["y"],"), con HP =",troop["HP"],"."
+    print " "
 
 #NOW RANDOM PROB IS inside agent behavior DEFAULT IS 0
 def gameLoop(baseBattle, initialState, agentRed,agentBlue,whoStart, store=True,cursor=None, consoleMode=False):
 
     #in console mode, just to avoid infinite loops
     maxIter = 100
+    #Action counter
+    actionCounter = 0
     #get initial game state
     game = []
     state = initialState
@@ -75,11 +79,16 @@ def gameLoop(baseBattle, initialState, agentRed,agentBlue,whoStart, store=True,c
         agent = agentRed if activeTeam == 0 else agentBlue
         accionesValidas = getAllPosibleActions(baseBattle,state, activeTeam)
         while len(accionesValidas) != 0:
-
+            actionCounter += 1
             # Show positions of troops at start
             if consoleMode:
                 showTroops(state, 1)
                 showTroops(state, 2)
+                #show state without old action
+                aux = copy.deepcopy(state)
+                if aux.has_key('Action'):
+                    aux.pop('Action')
+                showTransition(aux,dontShow=False,actionN=actionCounter)
 
             heapAction = [] #The python heap keep TUPLES (value,action) sorted by value like a heap
 
@@ -101,6 +110,16 @@ def gameLoop(baseBattle, initialState, agentRed,agentBlue,whoStart, store=True,c
                 bestAction = agent.selectMove(accionesValidas,activeTeam)
                 bestValue = 0
 
+            #If move is none, skip turn
+            if bestAction == None:
+                break
+
+            # Do the transition
+            nextState = doTransition(state, bestAction,consoleMode)
+            reward = calcReward(state, bestAction, nextState, activeTeam)
+
+            #place if next state is win,lose or non terminal
+            state['next_terminal'] = checkTerminal(nextState, activeTeam)
             # set Action to state
             state['Action'] = bestAction
 
@@ -110,31 +129,18 @@ def gameLoop(baseBattle, initialState, agentRed,agentBlue,whoStart, store=True,c
             # Use this transition to update agent
             agent.observeTransition(state)
 
-            #if consolemode, print info about
+
+            # if consolemode, print info about
             if consoleMode:
-                #Print information about the action.
-                agent.actionToString(bestAction,activeTeam)
+                # Print information about the action.
+                agent.actionToString(bestAction, activeTeam)
 
-            #If move is none, skip turn
-            if bestAction == None:
-                break
-
-            # Do the transition
-            nextState = doTransition(state, bestAction,consoleMode)
-            reward = calcReward(state, bestAction, nextState, activeTeam)
-
-
-            #place if next state is win,lose or non terminal
-            state['next_terminal'] = checkTerminal(nextState, activeTeam)
 
             state = nextState
             baseBattle.setGameState(state)
 
             #Calculate new state actions
             accionesValidas = getAllPosibleActions(baseBattle, state, activeTeam)
-
-            #Show transition in plot
-            #showTransition(state)
 
             # maybe we win but we havent move all yet
             if checkTerminal(state, activeTeam) != 0:
@@ -152,12 +158,9 @@ def gameLoop(baseBattle, initialState, agentRed,agentBlue,whoStart, store=True,c
             if maxIter == 0:
                 print "Maxima iteracion alcanzada saliendo"
                 break
-
-    #place terminal in last transition
-        if store:
-            #open db and store game
-             saveGameToDb(cursor, game, 'GameComment')
-
+    if store:
+        # open db and store game
+        saveGameToDb(cursor, game, 'GameComment')
     return game
 
 

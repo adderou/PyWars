@@ -11,10 +11,10 @@ import os
 def troopFromJson(jsonTroop):
     type = jsonTroop['Troop']
     hp = jsonTroop['HP']
-    team = jsonTroop['Team']+1
+    team = jsonTroop['Team']
 
     newTroop = troopClassTypeDict[type](team)
-    newTroop.hp = hp
+    newTroop.health = hp
     return newTroop
     pass
 

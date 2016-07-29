@@ -98,12 +98,9 @@ def doTransition(state,action,consoleMode=False):
                         print defender.type, "del jugador", (1 - current_team), "ha sido destruído."
                 else:
                     troopA["HP"] = attacker.health
-
-        #Hp actualizado
-
-
-
-
+        if consoleMode:
+            print " "
+            print " "
     return state
 
 """
