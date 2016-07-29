@@ -95,7 +95,7 @@ def doTransition(state,action,consoleMode=False):
                 if attacker.health <= 0:
                     state["Troops"][current_team].remove(troopA)
                     if consoleMode:
-                        print defender.type, "del jugador", (1 - current_team), "ha sido destruído."
+                        print attacker.type, "del jugador", (current_team), "ha sido destruído."
                 else:
                     troopA["HP"] = attacker.health
         if consoleMode:

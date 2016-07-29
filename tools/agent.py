@@ -22,13 +22,14 @@ import numpy as np
 
 from tools.database import getNStates
 from tools.model import doTransition, calcReward, getTurnFromState
+import units2
 
 class abstractAgent():
     def __init__(self):
         self.randomProb = 0
         self.isHuman = False
     # Allows to preselect one move to use it in humanAgent.
-    def selectMove(self, actionList):
+    def selectMove(self, troops, actionList, player):
         pass
     def evalAction(self, state, action, turn):
         raise NotImplemented
@@ -59,24 +60,114 @@ class humanAgent(abstractAgent):
         self.randomProb = 0
         self.isHuman = True
 
+
+    def getTroopFromCoords(self,troops,xCoord,yCoord,position):
+        for troop in troops:
+            if (troop["x"],troop["y"]) == (xCoord,yCoord):
+                return {"x":troop["x"],"y":troop["y"],"name":units2.troopClassTypeDict[troop["Troop"]].type, "pos":position,"HP":troop["HP"]}
+
+    def getTroopList(self,troops,actionList):
+        troopList = []
+        lastCoordVisited = (-1,-1)
+        i = -1
+        for action in actionList:
+            i = i+1
+            actualCoords = (action["Xi"],action["Yi"]);
+            if  actualCoords != lastCoordVisited:
+                troopList.append(self.getTroopFromCoords(troops,action["Xi"], action["Yi"],i))
+                lastCoordVisited = actualCoords
+            else:
+                continue
+        return troopList
+
+    def getMovesList(self,actionList,index,x,y):
+        movesList = []
+        for i in range(index,len(actionList)):
+            action = actionList[i]
+            if (action["Xi"],action["Yi"]) == (x,y) and action["action_type"] == 0:
+                movesList.append({"x":action["Xf"],"y":action["Yf"],"pos":i})
+            else:
+                break
+        return movesList
+
+    def getAttacksList(self,actionList,index,xi,yi,xf,yf):
+        attacksList = []
+        for i in range(index,len(actionList)):
+            action = actionList[i]
+            if (action["Xi"], action["Yi"]) == (xi, yi) and (action["Xf"], action["Yf"]) == (xf, yf):
+                if action["action_type"] == 1:
+                    attacksList.append({"attack": 1, "x": action["Xa"], "y": action["Ya"], "pos": i})
+                else:
+                    attacksList.append({"attack":0,"pos":i})
+            else:
+                break
+        return attacksList
+
     #Selects a move
-    def selectMove(self,actionList,player):
+    def selectMove(self,troops,actionList,player):
         selected = -1
-        while (selected < 1 or selected > len(actionList)):
+        troopList = self.getTroopList(troops,actionList)
+        # Select Troop
+        while (selected < 1 or selected > len(troopList)):
             # Pass
             if selected == 0:
                 return None
-            print "Selecciona un movimiento, o ingresa 0 si quieres pasar:"
+            print "Selecciona una tropa para mover, o ingresa 0 si quieres pasar:"
             i = 1
-            for action in actionList:
-                print "------",i, ")",
-                self.actionToString(action,player)
+            for troop in troopList:
+                print "------",i, ")",troop["name"]," ( HP = ",troop["HP"],") ubicada en (",troop["x"],",",troop["y"],")"
                 i = i + 1
             selected = input()
             if selected < 0 or selected > len(actionList):
                 print "Error: Ingresa un número entre 1 y",len(actionList),"."
 
-        return actionList[selected-1]
+        selectedTroop = troopList[selected-1]
+        actionStartIndex = selectedTroop["pos"]
+        xi = selectedTroop["x"]
+        yi = selectedTroop["y"]
+        movesList = self.getMovesList(actionList,actionStartIndex,xi,yi)
+        selected = -1
+        while (selected < 1 or selected > len(movesList)):
+            if selected == 0:
+                #Start again
+                return self.selectMove(troops,actionList,player)
+            print "Selecciona un movimiento para esa tropa, o ingresa 0 si quieres escoger otra:"
+            i = 1
+            for move in movesList:
+                print "------", i, ")", "Moverse a la posición (",move["x"],",",move["y"],")"
+                i = i + 1
+            selected = input()
+            if selected < 0 or selected > len(movesList):
+                print "Error: Ingresa un número entre 1 y", len(movesList), "."
+
+        selectedMove = movesList[selected-1]
+        moveStartIndex = selectedMove["pos"]
+        xf = selectedMove["x"]
+        yf = selectedMove["y"]
+        attacksList = self.getAttacksList(actionList,moveStartIndex,xi,yi,xf,yf)
+        if attacksList == 1:
+            print "No es posible atacar desde acá, así que se moverá a esta posición."
+            return actionList[attacksList[0]["pos"]]
+        else:
+            selected = -1
+            while (selected < 1 or selected > len(attacksList)):
+                if selected == 0:
+                    #Start again
+                    return self.selectMove(troops,actionList,player)
+                print "Selecciona si la tropa atacará, o ingresa 0 si quieres escoger otra tropa:"
+                i = 1
+                for attack in attacksList:
+                    print "------", i, ")",
+                    if attack["attack"] == 1:
+                        print "Atacar a la posición (",attack["x"],",",attack["y"],")."
+                    else:
+                        print "No atacar."
+                    i = i + 1
+                selected = input()
+                if selected < 0 or selected > len(attacksList):
+                    print "Error: Ingresa un número entre 1 y", len(attacksList), "."
+            selectedAttack = attacksList[selected-1]
+            return actionList[selectedAttack["pos"]]
 
 
 class randomAgent(abstractAgent):

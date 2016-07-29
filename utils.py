@@ -98,7 +98,7 @@ def gameLoop(baseBattle, initialState, agentRed,agentBlue,whoStart, store=True,c
                     bestValue = -1
             else:
                 #Agent is human
-                bestAction = agent.selectMove(accionesValidas,activeTeam)
+                bestAction = agent.selectMove(state["Troops"][activeTeam], accionesValidas,activeTeam)
                 bestValue = 0
 
             # set Action to state
@@ -134,7 +134,7 @@ def gameLoop(baseBattle, initialState, agentRed,agentBlue,whoStart, store=True,c
             accionesValidas = getAllPosibleActions(baseBattle, state, activeTeam)
 
             #Show transition in plot
-            #showTransition(state)
+            showTransition(state)
 
             # maybe we win but we havent move all yet
             if checkTerminal(state, activeTeam) != 0:
