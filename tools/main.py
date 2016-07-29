@@ -3,6 +3,8 @@
 
 import agent
 import utils
+import MySQLdb
+
 def set_player(number):
     p = -1
     while (p not in [1, 2, 3, 4]):
@@ -10,7 +12,7 @@ def set_player(number):
         print "1) Humano"
         print "2) Computador - Juego Aleatorio"
         print "3) Computador - Juego Ofensivo Aleatorio"
-        print "Pronto ) Computador - Juego Red Neuronal"
+        print "4) Computador - Juego Red Neuronal"
         p = input()
         if (p not in [1 ,2 ,3 ,4]):
             print "Error, ingresa un número del 1 al 4"
@@ -18,9 +20,33 @@ def set_player(number):
         print ""
     return p
 
-agents = [agent.humanAgent,agent.randomAgent,agent.agresiveAgent,agent.neuralTD1Agent]
+agents = [agent.humanAgent,agent.randomAgent,agent.agresiveAgent] # Neural Network Missing
+
+def trainNeuralAgent(agentList):
+    db = MySQLdb.connect("200.9.100.170", "bayes", "yesbayesyes", "bayes")
+    cursor = db.cursor (MySQLdb.cursors.DictCursor)
+
+
+    #Set up game inputs and hiden layers
+    hidenUnits = 1000
+    trainingSamples = 30000
+    nnAgent = agent.neuralTD1Agent(3042, hidenUnits)
+
+
+    #Train with N states
+    nnAgent.trainBatchN(cursor, trainingSamples,justTerminal=True)
+
+    # Save Model
+    nnAgent.saveModel()
+
+    cursor.close()
+    db.commit()
+    db.close()
+    agentList.append(lambda : nnAgent)
 
 if __name__ == "__main__":
+    print "Entrenando agente"
+    trainNeuralAgent(agents)
     print "Bienvenido a PyWars"
     print "---------------------"
     p1 = set_player(1) - 1

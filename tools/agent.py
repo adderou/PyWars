@@ -351,8 +351,8 @@ class neuralTD1Agent(abstractAgent):
             self.trainOneStep(jsonState)
 
         end = time.clock()
-        print "Model trained in ", end - start, " trained with ", trainingSamples
-        print "Average time by train sample ", (end - start) * 1.0 / trainingSamples
+        print "Model trained in ", end - start, " trained with ", numberOfStatesToTrain
+        print "Average time by train sample ", (end - start) * 1.0 / numberOfStatesToTrain
     def saveModel(self):
         #Here should be somekind of parse of the parameters to make name = str(parameter) + str(date)
         name = "Td1 NoReward JUSTTERMINAL LR 04 hd" + str(self.hiddenUnits) + " trainedStates " + str(

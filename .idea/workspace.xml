@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="1665a526-bde9-4903-8b7c-a62e006d1d19" name="Default" comment="Selección de movimiento es más usable">
+    <list default="true" id="1665a526-bde9-4903-8b7c-a62e006d1d19" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tools/agent.py" afterPath="$PROJECT_DIR$/tools/agent.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/utils.py" afterPath="$PROJECT_DIR$/utils.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tools/main.py" afterPath="$PROJECT_DIR$/tools/main.py" />
     </list>
     <ignored path="PyWars.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -20,7 +20,7 @@
   <component name="CoverageDataManager">
     <SUITE FILE_PATH="coverage/PyWars$CosadelAndres.coverage" NAME="CosadelAndres Coverage Results" MODIFIED="1469773522726" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/PyWars$agent.coverage" NAME="agent Coverage Results" MODIFIED="1469772686244" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tools" />
-    <SUITE FILE_PATH="coverage/PyWars$CLI_PyWars.coverage" NAME="CLI_PyWars Coverage Results" MODIFIED="1469827852556" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/" />
+    <SUITE FILE_PATH="coverage/PyWars$CLI_PyWars.coverage" NAME="CLI_PyWars Coverage Results" MODIFIED="1469832268866" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/" />
     <SUITE FILE_PATH="coverage/PyWars$main.coverage" NAME="main Coverage Results" MODIFIED="1469773532144" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tools" />
     <SUITE FILE_PATH="coverage/PyWars$testNN.coverage" NAME="testNN Coverage Results" MODIFIED="1469818991969" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tools" />
     <SUITE FILE_PATH="coverage/PyWars$units2.coverage" NAME="units2 Coverage Results" MODIFIED="1469818043088" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
@@ -45,11 +45,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="main.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="main.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/tools/main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="300">
-              <caret line="20" column="78" selection-start-line="20" selection-start-column="78" selection-end-line="20" selection-end-column="78" />
+            <state relative-caret-position="307">
+              <caret line="44" column="37" selection-start-line="44" selection-start-column="37" selection-end-line="44" selection-end-column="37" />
               <folding>
                 <element signature="e#47#59#0" expanded="true" />
               </folding>
@@ -79,14 +79,14 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="agent.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="agent.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/tools/agent.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="342">
-              <caret line="114" column="38" selection-start-line="114" selection-start-column="38" selection-end-line="114" selection-end-column="38" />
+            <state relative-caret-position="-232">
+              <caret line="352" column="0" selection-start-line="352" selection-start-column="0" selection-end-line="354" selection-end-column="90" />
               <folding>
                 <element signature="e#365#380#0" expanded="true" />
-                <marker date="1469827849927" expanded="true" signature="13322:13414" ph="SELECT `curr... state" />
+                <marker date="1469831769027" expanded="true" signature="13321:13413" ph="SELECT `curr... state" />
               </folding>
             </state>
           </provider>
@@ -118,12 +118,12 @@
         <entry file="file://$PROJECT_DIR$/tools/visualization.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="2370">
-              <caret line="158" column="13" selection-start-line="158" selection-start-column="13" selection-end-line="158" selection-end-column="13" />
+              <caret line="160" column="13" selection-start-line="160" selection-start-column="13" selection-end-line="160" selection-end-column="13" />
               <folding>
-                <marker date="1469817608020" expanded="false" signature="0:7" ph="import ..." />
-                <marker date="1469817608020" expanded="true" signature="5647:5867" ph="..." />
-                <marker date="1469817608020" expanded="true" signature="6333:6943" ph="..." />
-                <marker date="1469817608020" expanded="true" signature="6646:6790" ph="..." />
+                <marker date="1469829569251" expanded="false" signature="0:7" ph="import ..." />
+                <marker date="1469829569251" expanded="true" signature="5647:5867" ph="..." />
+                <marker date="1469829569251" expanded="true" signature="6333:7012" ph="..." />
+                <marker date="1469829569251" expanded="true" signature="6715:6859" ph="..." />
               </folding>
             </state>
           </provider>
@@ -132,10 +132,11 @@
       <file leaf-file-name="utils.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/utils.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="405">
-              <caret line="158" column="8" selection-start-line="158" selection-start-column="8" selection-end-line="158" selection-end-column="8" />
+            <state relative-caret-position="1980">
+              <caret line="156" column="0" selection-start-line="156" selection-start-column="0" selection-end-line="156" selection-end-column="0" />
               <folding>
-                <marker date="1469827551699" expanded="true" signature="47:48" ph="..." />
+                <element signature="e#113#124#0" expanded="true" />
+                <marker date="1469829569251" expanded="true" signature="47:48" ph="..." />
               </folding>
             </state>
           </provider>
@@ -180,9 +181,9 @@
         <option value="$PROJECT_DIR$/tools/visualization.py" />
         <option value="$PROJECT_DIR$/units2.py" />
         <option value="$PROJECT_DIR$/tools/model.py" />
-        <option value="$PROJECT_DIR$/tools/main.py" />
         <option value="$PROJECT_DIR$/utils.py" />
         <option value="$PROJECT_DIR$/tools/agent.py" />
+        <option value="$PROJECT_DIR$/tools/main.py" />
       </list>
     </option>
   </component>
@@ -202,7 +203,7 @@
     <OptionsSetting value="true" id="Add" />
     <OptionsSetting value="true" id="Remove" />
     <OptionsSetting value="true" id="Checkout" />
-    <OptionsSetting value="true" id="Update" />
+    <OptionsSetting value="false" id="Update" />
     <OptionsSetting value="true" id="Status" />
     <OptionsSetting value="true" id="Edit" />
     <ConfirmationsSetting value="0" id="Add" />
@@ -344,10 +345,8 @@
           <option name="myCanBeAbsent" value="false" />
           <option name="myId" value="UPDATED" />
           <PATH vcs="Git" revision="">$PROJECT_DIR$/tools/agent.py</PATH>
-          <PATH vcs="Git" revision="">$PROJECT_DIR$/tools/main.py</PATH>
-          <PATH vcs="Git" revision="">$PROJECT_DIR$/tools/model.py</PATH>
           <PATH vcs="Git" revision="">$PROJECT_DIR$/tools/visualization.py</PATH>
-          <PATH vcs="Git" revision="">$PROJECT_DIR$/units2.py</PATH>
+          <PATH vcs="Git" revision="">$PROJECT_DIR$/utils.py</PATH>
         </FILE-GROUP>
         <FILE-GROUP>
           <option name="myUpdateName" value="Created" />
@@ -901,7 +900,14 @@
       <option name="project" value="LOCAL" />
       <updated>1469826820050</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="mas usable la seleccion de movimiento">
+      <created>1469827892069</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1469827892069</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="TodoView">
@@ -915,16 +921,16 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="1364" y="-20" width="1924" height="1102" extended-state="0" />
-    <editor active="false" />
+    <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.20660277" sideWeight="0.48844376" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3299595" sideWeight="0.4978701" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.34311742" sideWeight="0.3743344" order="13" side_tool="true" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.34311742" sideWeight="0.37699682" order="13" side_tool="true" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32832617" sideWeight="0.4822294" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3451417" sideWeight="0.57348245" order="10" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.34311742" sideWeight="0.6256656" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3451417" sideWeight="0.57082003" order="10" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.34311742" sideWeight="0.6230032" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32939914" sideWeight="0.49676898" order="12" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.20660277" sideWeight="0.51155627" order="2" side_tool="true" content_ui="tabs" />
@@ -962,7 +968,8 @@
     <MESSAGE value="Arreglados mapas random" />
     <MESSAGE value="Creados nuevos tipos de random. Si se quiere un random más justo, basta con llamar randomMap(fair=True)" />
     <MESSAGE value="Selección de movimiento es más usable" />
-    <option name="LAST_COMMIT_MESSAGE" value="Selección de movimiento es más usable" />
+    <MESSAGE value="mas usable la seleccion de movimiento" />
+    <option name="LAST_COMMIT_MESSAGE" value="mas usable la seleccion de movimiento" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1256,12 +1263,12 @@
     <entry file="file://$PROJECT_DIR$/tools/visualization.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="2370">
-          <caret line="158" column="13" selection-start-line="158" selection-start-column="13" selection-end-line="158" selection-end-column="13" />
+          <caret line="160" column="13" selection-start-line="160" selection-start-column="13" selection-end-line="160" selection-end-column="13" />
           <folding>
-            <marker date="1469817608020" expanded="false" signature="0:7" ph="import ..." />
-            <marker date="1469817608020" expanded="true" signature="5647:5867" ph="..." />
-            <marker date="1469817608020" expanded="true" signature="6333:6943" ph="..." />
-            <marker date="1469817608020" expanded="true" signature="6646:6790" ph="..." />
+            <marker date="1469829569251" expanded="false" signature="0:7" ph="import ..." />
+            <marker date="1469829569251" expanded="true" signature="5647:5867" ph="..." />
+            <marker date="1469829569251" expanded="true" signature="6333:7012" ph="..." />
+            <marker date="1469829569251" expanded="true" signature="6715:6859" ph="..." />
           </folding>
         </state>
       </provider>
@@ -1278,6 +1285,24 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="105">
           <caret line="110" column="257" selection-start-line="110" selection-start-column="257" selection-end-line="110" selection-end-column="257" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tools/model.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="465">
+          <caret line="97" column="61" selection-start-line="97" selection-start-column="61" selection-end-line="97" selection-end-column="61" />
+          <folding>
+            <element signature="e#47#72#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/batleStub.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1">
+          <caret line="871" column="24" selection-start-line="871" selection-start-column="19" selection-end-line="871" selection-end-column="24" />
           <folding />
         </state>
       </provider>
@@ -1300,51 +1325,34 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/tools/model.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="465">
-          <caret line="97" column="61" selection-start-line="97" selection-start-column="61" selection-end-line="97" selection-end-column="61" />
-          <folding>
-            <element signature="e#47#72#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/batleStub.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1">
-          <caret line="871" column="24" selection-start-line="871" selection-start-column="19" selection-end-line="871" selection-end-column="24" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tools/main.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="300">
-          <caret line="20" column="78" selection-start-line="20" selection-start-column="78" selection-end-line="20" selection-end-column="78" />
-          <folding>
-            <element signature="e#47#59#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/utils.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="405">
-          <caret line="158" column="8" selection-start-line="158" selection-start-column="8" selection-end-line="158" selection-end-column="8" />
+        <state relative-caret-position="1980">
+          <caret line="156" column="0" selection-start-line="156" selection-start-column="0" selection-end-line="156" selection-end-column="0" />
           <folding>
-            <marker date="1469827551699" expanded="true" signature="47:48" ph="..." />
+            <element signature="e#113#124#0" expanded="true" />
+            <marker date="1469829569251" expanded="true" signature="47:48" ph="..." />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/tools/agent.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="342">
-          <caret line="114" column="38" selection-start-line="114" selection-start-column="38" selection-end-line="114" selection-end-column="38" />
+        <state relative-caret-position="-232">
+          <caret line="352" column="0" selection-start-line="352" selection-start-column="0" selection-end-line="354" selection-end-column="90" />
           <folding>
             <element signature="e#365#380#0" expanded="true" />
-            <marker date="1469827849927" expanded="true" signature="13322:13414" ph="SELECT `curr... state" />
+            <marker date="1469831769027" expanded="true" signature="13321:13413" ph="SELECT `curr... state" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tools/main.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="307">
+          <caret line="44" column="37" selection-start-line="44" selection-start-column="37" selection-end-line="44" selection-end-column="37" />
+          <folding>
+            <element signature="e#47#59#0" expanded="true" />
           </folding>
         </state>
       </provider>
