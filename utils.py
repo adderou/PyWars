@@ -64,6 +64,7 @@ def gameLoop(baseBattle, initialState, agentRed,agentBlue,whoStart, store=True,c
         accionesValidas = getAllPosibleActions(baseBattle,state, activeTeam)
         while len(accionesValidas) != 0:
             heapAction = [] #The python heap keep TUPLES (value,action) sorted by value like a heap
+
             #If agent is not human, select with AI
             if not agent.isHuman:
                 #Random action or evaluation ?
@@ -141,10 +142,10 @@ def gameLoop(baseBattle, initialState, agentRed,agentBlue,whoStart, store=True,c
 
 
 
-def generateGame(cursor,agentRed,agentBlue, store=True):
+def generateGame(cursor,agentRed,agentBlue, store=True,fair=False):
 
     #Generate map
-    batalla = virtualBattle.randomMap()
+    batalla = virtualBattle.randomMap(fair)
     batalla.initGame()
 
     initialState = batalla.getGameState()
@@ -161,7 +162,7 @@ def testAgentRed(agentRed,agentBlue,nGames=40):
     lost = 0
     notEnded = 0
     for i in range(nGames):
-        game = generateGame(cursor, agentRed, agentBlue, False)
+        game = generateGame(cursor, agentRed, agentBlue, False,fair=True)
         endState = game[len(game) - 1]
         endGameResult = endState['next_terminal']
         endTurn = getTurnFromState(endState)
@@ -219,7 +220,8 @@ if __name__ == '__main__':
     #Agent settings
 
     agentRed = agresiveAgent()
-    agentRed = loadModel("v1 20070.pkl")
+    agentRed = loadModel("v2 11155.pkl")
+
     agentBlue = agresiveAgent()
     # agresiveBlue = loadNNTD1("tools/modelo TD1 500 iteraciones.pkl")
 
@@ -238,16 +240,18 @@ if __name__ == '__main__':
     elif mode == 'IncrementalTraining':
         trainingGames = 100
         saveRedAgent = True
+        agentRed.setLearning(True)
         #Here it uses only agent Red to maximize learning.
         for i in range(trainingGames):
             game = generateGame(cursor, agentRed, agentRed, store=False)
             print "Game generation ended ",len(game)," transitions"
         print "Incremental training seasion ended after "+str(trainingGames)+" now saving results"
+        agentRed.setLearning(False)
         # Saving Red Model
         if saveRedAgent:
             agentRed.saveModel()
     elif mode == "showBattle":
-        game = generateGame(cursor, agentRed, agentBlue, False)
+        game = generateGame(cursor, agentRed, agentBlue, False,fair=True)
         showGameScroll(game)
     elif mode == 'testAgent':
         print "Testing agent Red "

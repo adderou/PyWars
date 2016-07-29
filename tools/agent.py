@@ -232,6 +232,7 @@ class neuralTD1Agent(abstractAgent):
         else:
             self.backpropagate(arrayCurrent, arrayNext, reward, False)
 
+
     def trainBatchN(self,cursor,numberOfStatesToTrain,justTerminal=False):
 
         #get N states as Json

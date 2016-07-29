@@ -218,7 +218,7 @@ class Battle(PygameBaseClass):
             if not(fair):
                 unitType = random.randint(1, 6)
             else:
-                unitType = firstUnitTypes.pop(random.randint(1,6))
+                unitType = firstUnitTypes.pop(len(firstUnitTypes)-1)
             x = random.randint(max(0, x - d), min(9, x + d))
             y = random.randint(max(0, y - d), min(15, y + d))
             while ((x,y) in used):
