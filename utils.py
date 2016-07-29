@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # X hacia abajo Y hacia la derecha centrado en la esquina sup izq
+import copy
 import heapq
 import random
 import MySQLdb
@@ -60,6 +61,7 @@ def gameLoop(baseBattle, initialState, agentRed,agentBlue,whoStart, store=True,c
 
     #in console mode, just to avoid infinite loops
     maxIter = 100
+    accionescounter=0
     #get initial game state
     game = []
     state = initialState
@@ -72,6 +74,7 @@ def gameLoop(baseBattle, initialState, agentRed,agentBlue,whoStart, store=True,c
     activeTeam = whoStart
 
     while checkTerminal(state, activeTeam) == 0:
+        accionescounter+=1
         agent = agentRed if activeTeam == 0 else agentBlue
         accionesValidas = getAllPosibleActions(baseBattle,state, activeTeam)
         while len(accionesValidas) != 0:
@@ -100,42 +103,36 @@ def gameLoop(baseBattle, initialState, agentRed,agentBlue,whoStart, store=True,c
                 #Agent is human
                 bestAction = agent.selectMove(state["Troops"], accionesValidas,activeTeam)
                 bestValue = 0
-
-            # set Action to state
-            state['Action'] = bestAction
-
-            # append transition to game
-            game.append(state)
-
-            # Use this transition to update agent
-            agent.observeTransition(state)
-
             #if consolemode, print info about
             if consoleMode:
                 #Print information about the action.
                 agent.actionToString(bestAction,activeTeam)
-
+                # Show transition in plot
+                der = copy.deepcopy(state)
+                if der.has_key('Action'):
+                    der.pop('Action')
+                showTransition(state,dontShow=False,actionN=accionescounter)
             #If move is none, skip turn
             if bestAction == None:
                 break
 
             # Do the transition
             nextState = doTransition(state, bestAction,consoleMode)
-            reward = calcReward(state, bestAction, nextState, activeTeam)
-
-
             #place if next state is win,lose or non terminal
             state['next_terminal'] = checkTerminal(nextState, activeTeam)
+            # set Action to state
+            state['Action'] = bestAction
+            # append transition to game
+            game.append(state)
 
+            # Use this transition to update agent
+            agent.observeTransition(state)
+
+            #Update to next state
             state = nextState
             baseBattle.setGameState(state)
-
             #Calculate new state actions
             accionesValidas = getAllPosibleActions(baseBattle, state, activeTeam)
-
-            #Show transition in plot
-            showTransition(state)
-
             # maybe we win but we havent move all yet
             if checkTerminal(state, activeTeam) != 0:
                 break

@@ -19,7 +19,6 @@ import time
 
 import MySQLdb
 import numpy as np
-
 from tools.database import getNStates
 from tools.model import doTransition, calcReward, getTurnFromState
 import units2
@@ -383,8 +382,8 @@ if __name__ == "__main__":
 
 
     #Set up game inputs and hiden layers
-    hidenUnits = 100
-    trainingSamples = 10000
+    hidenUnits = 1000
+    trainingSamples = 30000
     nnAgent = neuralTD1Agent(3042, hidenUnits)
 
 

@@ -184,7 +184,8 @@ def showActionsAgent(state,agent,turn):
 
     for action in accionesValidas:
         value = agent.evalAction(state, action, turn)
-
+        if type(value) == np.ndarray:
+            value = value[0][0]
         cordsA = (action['Xi'], action['Yi'])
         cordsB = (action['Xf'], action['Yf'])
         cordsAttack = (action['Xa'], action['Ya'])
