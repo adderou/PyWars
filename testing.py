@@ -36,6 +36,7 @@ if __name__ == "__main__":
         plt.ylabel('% Ganado')
         plt.xlabel('Valor hiddenUnits')
         plt.show()
+        valuesArray = []
         for trainingSamples in trainingSamplesList:
             print "Probando con configuración: ", whoStartType[whoStart],"HidenUnits:",hidenUnits,"trainingSamples",fixedSample
             redAgent = main.createTrainedNeuralAgent(fixedUnit, trainingSamples)
