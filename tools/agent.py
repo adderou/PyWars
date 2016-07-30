@@ -86,8 +86,6 @@ class humanAgent(abstractAgent):
             action = actionList[i]
             if (action["Xi"],action["Yi"]) == (x,y) and action["action_type"] == 0:
                 movesList.append({"x":action["Xf"],"y":action["Yf"],"pos":i})
-            else:
-                break
         return movesList
 
     def getAttacksList(self,actionList,xi,yi,xf,yf):
@@ -99,8 +97,6 @@ class humanAgent(abstractAgent):
                     attacksList.append({"attack": 1, "x": action["Xa"], "y": action["Ya"], "pos": i})
                 else:
                     attacksList.append({"attack":0,"pos":i})
-            else:
-                break
         return attacksList
 
     #Selects a move
