@@ -16,6 +16,7 @@
 import datetime
 import pickle
 import time
+import random
 
 import MySQLdb
 import numpy as np
@@ -79,9 +80,9 @@ class humanAgent(abstractAgent):
                 continue
         return troopList
 
-    def getMovesList(self,actionList,index,x,y):
+    def getMovesList(self,actionList,x,y):
         movesList = []
-        for i in range(index,len(actionList)):
+        for i in range(0,len(actionList)):
             action = actionList[i]
             if (action["Xi"],action["Yi"]) == (x,y) and action["action_type"] == 0:
                 movesList.append({"x":action["Xf"],"y":action["Yf"],"pos":i})
@@ -89,9 +90,9 @@ class humanAgent(abstractAgent):
                 break
         return movesList
 
-    def getAttacksList(self,actionList,index,xi,yi,xf,yf):
+    def getAttacksList(self,actionList,xi,yi,xf,yf):
         attacksList = []
-        for i in range(index,len(actionList)):
+        for i in range(0,len(actionList)):
             action = actionList[i]
             if (action["Xi"], action["Yi"]) == (xi, yi) and (action["Xf"], action["Yf"]) == (xf, yf):
                 if action["action_type"] == 1:
@@ -124,7 +125,7 @@ class humanAgent(abstractAgent):
         actionStartIndex = selectedTroop["pos"]
         xi = selectedTroop["x"]
         yi = selectedTroop["y"]
-        movesList = self.getMovesList(actionList,actionStartIndex,xi,yi)
+        movesList = self.getMovesList(actionList,xi,yi)
         selected = -1
         while (selected < 1 or selected > len(movesList)):
             if selected == 0:
@@ -143,7 +144,7 @@ class humanAgent(abstractAgent):
         moveStartIndex = selectedMove["pos"]
         xf = selectedMove["x"]
         yf = selectedMove["y"]
-        attacksList = self.getAttacksList(actionList,moveStartIndex,xi,yi,xf,yf)
+        attacksList = self.getAttacksList(actionList,xi,yi,xf,yf)
         if len(attacksList) == 1:
             print "No es posible atacar desde acá, así que se moverá a esta posición."
             return actionList[attacksList[0]["pos"]]
@@ -183,7 +184,8 @@ class agresiveAgent(abstractAgent):
         self.randomProb = 0
         pass
     def evalAction(self, state, action,turn):
-        return -1 * (action['action_type'])
+        coef = -1 if action['action_type'] == 1 else 1
+        return  coef * random.randint(1,10)
 
 class neuralTD1Agent(abstractAgent):
     def __init__(self,inputLength,hidenUnits):

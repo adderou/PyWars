@@ -53,7 +53,7 @@ def showTroops(state,number):
     print "-- Tropas del equipo",number
     for troop in team:
         movable = "no movida" if troop["Can_move"] == 1 else "ya movida"
-        print "Tropa",movable,"del tipo",units2.troopClassTypeDict[troop["Troop"]].type,\
+        print "-- Tropa",movable,"del tipo",units2.troopClassTypeDict[troop["Troop"]].type,\
             "ubicada en posición (",troop["x"],",",troop["y"],"), con HP =",troop["HP"],"."
 
 #NOW RANDOM PROB IS inside agent behavior DEFAULT IS 0
@@ -161,7 +161,7 @@ def gameLoop(baseBattle, initialState, agentRed,agentBlue,whoStart, store=True,c
 
 
 
-def generateGame(cursor,agentRed,agentBlue, store=True,fair=False, consoleMode=False):
+def generateGame(cursor,agentRed,agentBlue, store=True,fair=False, consoleMode=False, whoStart = -1):
 
     #Generate map
     batalla = virtualBattle.randomMap(fair)
@@ -169,19 +169,21 @@ def generateGame(cursor,agentRed,agentBlue, store=True,fair=False, consoleMode=F
 
     initialState = batalla.getGameState()
 
-    whoStart = random.randint(0,1)
+    if whoStart == -1:
+        whoStart = random.randint(0,1)
+
     game = gameLoop(batalla,initialState,agentRed,agentBlue,whoStart,store=store,cursor=cursor,consoleMode=consoleMode)
 
     # print "Game generation ended ",len(game)," transitions"
     return game
 
 
-def testAgentRed(agentRed,agentBlue,nGames=40):
+def testAgentRed(cursor,agentRed,agentBlue,nGames=40,whoStart=-1):
     won = 0
     lost = 0
     notEnded = 0
     for i in range(nGames):
-        game = generateGame(cursor, agentRed, agentBlue, False,fair=True)
+        game = generateGame(cursor, agentRed, agentBlue, False,fair=True,whoStart=whoStart)
         endState = game[len(game) - 1]
         endGameResult = endState['next_terminal']
         endTurn = getTurnFromState(endState)
@@ -206,15 +208,17 @@ def testAgentRed(agentRed,agentBlue,nGames=40):
     print "Draws ",notEnded
     print ""
 
+    return {"won":won,"lost":lost,"draw":notEnded}
+
 def analisisRedAgent(agentToTest,cursor,battleTest=True):
     if battleTest:
         #test agent vs agresive blue
         agresiveBlue = agresiveAgent()
-        testAgentRed(agentToTest, agresiveBlue,40)
+        testAgentRed(cursor,agentToTest, agresiveBlue,40)
 
         # test agent vs random blue
         blue = randomAgent()
-        testAgentRed(agentToTest, blue)
+        testAgentRed(cursor,agentToTest, blue)
 
     #Test with a series of know cases
     testCases = [161304,263315]
@@ -239,7 +243,7 @@ if __name__ == '__main__':
     #Agent settings
 
     agentRed = agresiveAgent()
-    agentRed = loadModel("v2 11155.pkl")
+    agentRed = loadModel("training.pkl")
 
     agentBlue = agresiveAgent()
     # agresiveBlue = loadNNTD1("tools/modelo TD1 500 iteraciones.pkl")

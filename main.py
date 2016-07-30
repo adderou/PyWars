@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import agent
+import tools.agent
 import utils
 import MySQLdb
 
@@ -20,16 +20,13 @@ def set_player(number):
         print ""
     return p
 
-def createTrainedNeuralAgent():
+def createTrainedNeuralAgent(hidenUnits = 100, trainingSamples = 30000):
     print "Entrenando Agente"
     db = MySQLdb.connect("200.9.100.170", "bayes", "yesbayesyes", "bayes")
     cursor = db.cursor (MySQLdb.cursors.DictCursor)
 
 
-    #Set up game inputs and hiden layers
-    hidenUnits = 100
-    trainingSamples = 30000
-    nnAgent = agent.neuralTD1Agent(3042, hidenUnits)
+    nnAgent = tools.agent.neuralTD1Agent(3042, hidenUnits)
 
 
     #Train with N states
@@ -43,7 +40,7 @@ def createTrainedNeuralAgent():
     db.close()
     return nnAgent
 
-agents = [agent.humanAgent,agent.randomAgent,agent.agresiveAgent,createTrainedNeuralAgent] # Neural Network Missing
+agents = [tools.agent.humanAgent, tools.agent.randomAgent, tools.agent.agresiveAgent, createTrainedNeuralAgent] # Neural Network Missing
 
 if __name__ == "__main__":
     print "Bienvenido a PyWars"
