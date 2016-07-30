@@ -22,7 +22,7 @@ if __name__ == "__main__":
     fixedSample = 30000
     whoStartList = [-1,0,1]
     whoStartType = {-1:"Aleatorio",0:"Parte Red Neuronal",1:"Parte Agresivo Aleatorio"}
-    iteraciones = 20
+    iteraciones = 10
     blueAgent = agent.agresiveAgent()
     for whoStart in whoStartList:
         valuesArray = []
@@ -32,7 +32,7 @@ if __name__ == "__main__":
             values = utils.testAgentRed(cursor, redAgent, blueAgent, iteraciones)
             valuesArray.append(values["won"])
         plt.plot(hidenUnitsList,valuesArray)
-        plt.title("Victorias Red Neuronal "+whoStartType[whoStart]+" y trainingSamples = "+fixedSample)
+        plt.title("Victorias Red Neuronal "+whoStartType[whoStart]+" y trainingSamples = "+str(fixedSample))
         plt.ylabel('% Ganado')
         plt.xlabel('Valor hiddenUnits')
         plt.show()
@@ -42,7 +42,7 @@ if __name__ == "__main__":
             values = utils.testAgentRed(cursor, redAgent, blueAgent, iteraciones)
             valuesArray.append(values["won"])
         plt.plot(trainingSamplesList,valuesArray)
-        plt.title("Victorias Red Neuronal "+whoStartType[whoStart]+" y hiddenUnits = "+fixedUnit)
+        plt.title("Victorias Red Neuronal "+whoStartType[whoStart]+" y hiddenUnits = "+str(fixedUnit))
         plt.ylabel('% Ganado')
         plt.xlabel('Valor hiddenUnits')
         plt.show()
